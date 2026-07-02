@@ -464,24 +464,24 @@ builder.Services.AddScoped<ReporteRepository>();
 
 ### Landing Page
 
-![Hero Section](docs/images/hero.png)
+![Hero Section](Vintaloo.WebApp/docs/images/hero.png)
 
 
 ### Sección de Pasos
 
-![Tres Pasos](docs/images/pasos.png)
+![Tres Pasos](Vintaloo.WebApp/docs/images/pasos.png)
 
 
 ### Impacto Sostenible
 
 
-![Impacto](docs/images/impacto.png)
+![Impacto](Vintaloo.WebApp/docs/images/impacto.png)
 
 
-### Marketplace (próximamente)
+### Marketplace 
 
 
-![Marketplace](docs/images/marketplace.png)
+![Marketplace](Vintaloo.WebApp/docs/images/marketplace.png)
 
 
 ---
