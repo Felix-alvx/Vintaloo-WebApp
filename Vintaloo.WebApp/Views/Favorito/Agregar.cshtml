@@ -1,0 +1,426 @@
+﻿@model List<Application.DTOs.ArticuloDTO>
+
+@{
+    ViewData["Title"] = "Mis Favoritos — Vintaloo";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --cream:    #F2EDE4;
+            --warm:     #EDE5D8;
+            --terra:    #C05A35;
+            --terra-dk: #9A4428;
+            --terra-lt: #E8A080;
+            --ink:      #1C1814;
+            --muted:    #8A7E74;
+            --border:   #DDD5C8;
+            --badge-disponible: #3A7A4A;
+            --badge-vendido:    #C05A35;
+            --badge-reservado:  #8A6A2A;
+        }
+
+        body {
+            background: var(--cream);
+            font-family: 'DM Sans', sans-serif;
+            color: var(--ink);
+            min-height: 100vh;
+        }
+
+        /* ── NAV ── */
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            height: 56px;
+            border-bottom: 1px solid var(--border);
+            background: var(--cream);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            display: flex; align-items: center; gap: 10px; text-decoration: none;
+        }
+
+        .nav-logo-icon {
+            width: 30px; height: 30px; background: var(--terra);
+            border-radius: 7px; display: flex; align-items: center; justify-content: center;
+        }
+
+        .nav-logo-icon svg { width: 16px; height: 16px; fill: white; }
+
+        .nav-logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem; font-weight: 600; color: var(--ink);
+        }
+
+        .nav-back {
+            font-size: 0.82rem; color: var(--muted);
+            text-decoration: none; transition: color .2s;
+        }
+
+        .nav-back:hover { color: var(--terra); }
+
+        /* ── MAIN ── */
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem;
+        }
+
+        /* ── HEADER ── */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            animation: fadeUp .4s ease both;
+        }
+
+        .page-header-left { display: flex; align-items: center; gap: 14px; }
+
+        .heart-icon {
+            width: 48px; height: 48px;
+            background: #FDF0ED;
+            border: 1px solid var(--terra-lt);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            color: var(--terra);
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem; font-weight: 600; color: var(--ink);
+        }
+
+        .page-count {
+            font-size: 0.82rem; color: var(--muted); margin-top: 2px;
+        }
+
+        .btn-volver {
+            padding: 8px 18px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: transparent;
+            color: var(--muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: all .2s;
+        }
+
+        .btn-volver:hover { border-color: var(--terra); color: var(--terra); }
+
+        /* ── ALERT ── */
+        .alert {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.84rem;
+            margin-bottom: 1.5rem;
+            animation: fadeUp .3s ease both;
+        }
+
+        .alert-success { background: #EDF7F0; border: 1px solid #A8D5B5; color: #3A7A4A; }
+
+        /* ── GRID ── */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 1.5rem;
+            animation: fadeUp .4s ease .08s both;
+        }
+
+        /* ── CARD ── */
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: transform .25s, box-shadow .25s;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(28,24,20,.1);
+        }
+
+        .card-img-wrap {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .card-img {
+            width: 100%; aspect-ratio: 4/3;
+            object-fit: cover; display: block;
+            transition: transform .3s;
+        }
+
+        .card:hover .card-img { transform: scale(1.03); }
+
+        .card-img-placeholder {
+            width: 100%; aspect-ratio: 4/3;
+            background: var(--warm);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--border);
+        }
+
+        /* Badge estado publicación */
+        .badge {
+            position: absolute; top: 10px; left: 10px;
+            padding: 3px 9px;
+            border-radius: 20px;
+            font-size: 0.62rem; font-weight: 700;
+            letter-spacing: 0.07em; text-transform: uppercase;
+            color: white;
+        }
+
+        .badge-disponible { background: var(--badge-disponible); }
+        .badge-vendido    { background: var(--badge-vendido); }
+        .badge-reservado  { background: var(--badge-reservado); }
+
+        /* Botón quitar favorito — esquina superior derecha */
+        .btn-quitar {
+            position: absolute; top: 8px; right: 8px;
+            width: 30px; height: 30px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-size: 15px; color: var(--terra);
+            transition: all .2s;
+            z-index: 2;
+        }
+
+        .btn-quitar:hover {
+            background: var(--terra);
+            color: white;
+            border-color: var(--terra);
+        }
+
+        .card-body { padding: 14px 16px 16px; }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.95rem; font-weight: 600;
+            color: var(--ink); margin-bottom: 4px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .card-desc {
+            font-size: 0.75rem; color: var(--muted);
+            margin-bottom: 10px; font-style: italic;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer {
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .card-price {
+            font-size: 1rem; font-weight: 500; color: var(--ink);
+        }
+
+        .btn-ver {
+            padding: 6px 14px;
+            background: var(--terra);
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.75rem; font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .btn-ver:hover { background: var(--terra-dk); }
+
+        /* ── EMPTY STATE ── */
+        .empty {
+            text-align: center;
+            padding: 5rem 2rem;
+            animation: fadeUp .4s ease both;
+        }
+
+        .empty-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            opacity: .3;
+        }
+
+        .empty-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem; color: var(--ink);
+            margin-bottom: .5rem;
+        }
+
+        .empty-sub { font-size: 0.84rem; color: var(--muted); margin-bottom: 1.5rem; }
+
+        .btn-explorar {
+            display: inline-block;
+            padding: 10px 28px;
+            background: var(--terra);
+            color: white;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 0.88rem; font-weight: 500;
+            transition: background .2s;
+        }
+
+        .btn-explorar:hover { background: var(--terra-dk); }
+
+        /* ── ANIMATIONS ── */
+        .card:nth-child(1) { animation: fadeUp .4s ease .05s both; }
+        .card:nth-child(2) { animation: fadeUp .4s ease .10s both; }
+        .card:nth-child(3) { animation: fadeUp .4s ease .15s both; }
+        .card:nth-child(4) { animation: fadeUp .4s ease .20s both; }
+        .card:nth-child(5) { animation: fadeUp .4s ease .25s both; }
+        .card:nth-child(6) { animation: fadeUp .4s ease .30s both; }
+
+        @@keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @@media (max-width: 600px) {
+            .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav>
+        <a class="nav-logo" href="/Dashboard">
+            <div class="nav-logo-icon">
+                <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm2 5h12v2H6zm3 5h6v2H9z" /></svg>
+            </div>
+            <span class="nav-logo-text">Vintaloo</span>
+        </a>
+        <a class="nav-back" href="/Dashboard">← Volver a la colección</a>
+    </nav>
+
+    <main>
+
+        @* Mensaje *@
+        @if (TempData["Mensaje"] != null)
+        {
+            <div class="alert alert-success">@TempData["Mensaje"]</div>
+        }
+
+        <!-- HEADER -->
+        <div class="page-header">
+            <div class="page-header-left">
+                <div class="heart-icon">♥</div>
+                <div>
+                    <h1 class="page-title">Mis favoritos</h1>
+                    <p class="page-count">
+                        @Model.Count artículo@(Model.Count != 1 ? "s" : "") guardado@(Model.Count != 1 ? "s" : "")
+                    </p>
+                </div>
+            </div>
+            <a href="/Dashboard" class="btn-volver">Seguir explorando</a>
+        </div>
+
+        @* ── GRID O EMPTY STATE ── *@
+        @if (!Model.Any())
+        {
+            <div class="empty">
+                <div class="empty-icon">♡</div>
+                <div class="empty-title">Aún no tienes favoritos</div>
+                <p class="empty-sub">Guarda los tesoros que más te gusten para encontrarlos aquí.</p>
+                <a href="/Dashboard" class="btn-explorar">Explorar colección</a>
+            </div>
+        }
+        else
+        {
+            <div class="grid">
+                @foreach (var articulo in Model)
+                {
+                    var estadoPub = articulo.EstadoPublicacion?.ToLower() ?? "disponible";
+                    var badgeClass = estadoPub switch
+                    {
+                        "vendido" => "badge-vendido",
+                        "reservado" => "badge-reservado",
+                        _ => "badge-disponible"
+                    };
+
+                    <div class="card">
+                        <!-- Imagen -->
+                        <div class="card-img-wrap"
+                             onclick="window.location='/Articulo/Detalle/@articulo.IdArticulo'">
+                            @if (!string.IsNullOrEmpty(articulo.UrlImagen))
+                            {
+                                <img class="card-img" src="@articulo.UrlImagen" alt="@articulo.Titulo" loading="lazy" />
+                            }
+                            else
+                            {
+                                <div class="card-img-placeholder">
+                                    <svg width="36" height="36" fill="none" stroke="currentColor"
+                                         stroke-width="1.5" viewBox="0 0 24 24">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                                        <circle cx="8.5" cy="8.5" r="1.5" />
+                                        <path d="m21 15-5-5L5 21" />
+                                    </svg>
+                                </div>
+                            }
+
+                            <span class="badge @badgeClass">
+                                @(articulo.EstadoPublicacion ?? "Disponible")
+                            </span>
+
+                            @* Botón quitar de favoritos *@
+                            <form asp-controller="Favorito" asp-action="Eliminar"
+                                  method="post"
+                                  onclick="event.stopPropagation()"
+                                  style="position:absolute;top:8px;right:8px">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="idArticulo" value="@articulo.IdArticulo" />
+                                <button type="submit" class="btn-quitar" title="Quitar de favoritos">♥</button>
+                            </form>
+                        </div>
+
+                        <!-- Cuerpo -->
+                        <div class="card-body">
+                            <div class="card-title" title="@articulo.Titulo">@articulo.Titulo</div>
+                            @if (!string.IsNullOrEmpty(articulo.Descripcion))
+                            {
+                                <div class="card-desc">@articulo.Descripcion</div>
+                            }
+                            <div class="card-footer">
+                                <span class="card-price">
+                                    ₡@articulo.Precio.ToString("N2")
+                                </span>
+                                <a href="/Articulo/Detalle/@articulo.IdArticulo" class="btn-ver">
+                                    Ver artículo
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+    </main>
+
+</body>
+</html>

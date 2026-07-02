@@ -1,0 +1,234 @@
+﻿@model Application.DTOs.CreateArticuloDTO
+
+@{
+    ViewData["Title"] = "Nuevo Artículo — Vintaloo";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/crear.css  " asp-append-version="true" />
+    <style></style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav>
+        <a class="nav-logo" href="/Dashboard">
+            <div class="nav-logo-icon">
+                <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm2 5h12v2H6zm3 5h6v2H9z" /></svg>
+            </div>
+            <span class="nav-logo-text">Vintaloo</span>
+        </a>
+        <a class="btn-close" href="/Dashboard" title="Cerrar">&#10005;</a>
+    </nav>
+
+    <!-- PÁGINA -->
+    <div class="page">
+
+        <!-- HEADER -->
+        <div class="page-header">
+            <h1 class="page-title">Nuevo Artículo</h1>
+            <p class="page-subtitle">Comparte la historia de tu tesoro vintage con el mundo.</p>
+        </div>
+
+        @* Mensaje de éxito *@
+        @if (TempData["Mensaje"] != null)
+        {
+            <div class="alert-success">@TempData["Mensaje"]</div>
+        }
+
+        @* Errores de validación del servidor *@
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="validation-summary">
+                @Html.ValidationSummary(false)
+            </div>
+        }
+
+        @* ── FORMULARIO — conectado a POST /Articulo/Crear ── *@
+        @* enctype="multipart/form-data" es obligatorio para subir archivos *@
+        <form asp-action="Crear" asp-controller="Articulo" method="post" enctype="multipart/form-data" id="formArticulo">
+            @Html.AntiForgeryToken()
+
+            @* ── SECCIÓN FOTOS ── *@
+            <div class="dropzone-section">
+                <h2 class="section-title">Fotos del Tesoro</h2>
+                <div class="dropzone" id="dropzone">
+                    @* name="imagenes" debe coincidir exactamente con el parámetro del controller *@
+                    <input type="file" name="imagenes" id="inputImagenes" multiple accept="image/*" onchange="previsualizarImagenes(this)" />
+                    <div class="dropzone-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" /><path d="M9 1v3h6V1H9zm0 19v3h6v-3H9z" style="display:none" /><path d="M6.5 6.5l-1.5 1.5 1.5 1.5 1.5-1.5zM17.5 6.5l-1.5 1.5 1.5 1.5 1.5-1.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" style="display:none" /><path d="M20 5h-3.17L15 3H9L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" /></svg>
+                    </div>
+                    <div class="dropzone-title">Sube tus fotos</div>
+                    <div class="dropzone-hint">Captura los detalles, las marcas y el carácter único.</div>
+                    <span class="btn-seleccionar">Seleccionar Archivos</span>
+                </div>
+                <div class="preview-grid" id="previewGrid"></div>
+            </div>
+
+            @* ── SECCIÓN DETALLES ── *@
+            <div class="form-section">
+                <h2 class="section-title">Detalles de la Pieza</h2>
+
+                @* TÍTULO *@
+                <div class="field">
+                    <label class="field-label" for="titulo">Título del Artículo</label>
+                    <input asp-for="Titulo"
+                           id="titulo"
+                           class="field-input"
+                           placeholder="Ej: Espejo Sol de latón años 60"
+                           oninput="validarTitulo(this)" />
+                    <div class="field-feedback" id="tituloFeedback"></div>
+                    <span asp-validation-for="Titulo" class="field-feedback feedback-err"></span>
+                </div>
+
+                @* CATEGORÍA + PRECIO *@
+                <div class="row-2">
+                    <div class="field">
+                        <label class="field-label" for="categoria">Categoría</label>
+                        <select asp-for="IdCategoria" id="categoria" class="field-input">
+                            <option value="">Seleccionar...</option>
+                            @if (ViewBag.Categorias != null)
+                            {
+                                foreach (var cat in ViewBag.Categorias)
+                                {
+                                    <option value="@cat.IdCategoria">@cat.Nombre</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="IdCategoria" class="field-feedback feedback-err"></span>
+                    </div>
+
+                    <div class="field">
+                        <label class="field-label" for="precio">Precio (₡)</label>
+                        <input asp-for="Precio"
+                               id="precio"
+                               type="number"
+                               step="0.01"
+                               min="0"
+                               class="field-input"
+                               placeholder="0.00" />
+                        <span asp-validation-for="Precio" class="field-feedback feedback-err"></span>
+                    </div>
+                </div>
+
+                @* ESTADO DE CONSERVACIÓN *@
+                <div class="field">
+                    <label class="field-label">Estado de Conservación</label>
+                    @* Campo hidden que guarda el valor del estado seleccionado *@
+                    <input type="hidden" asp-for="EstadoProducto" id="estadoHidden" value="Excelente" />
+                    <div class="estado-group">
+                        <button type="button" class="estado-btn active" onclick="seleccionarEstado('Excelente', this)">Excelente</button>
+                        <button type="button" class="estado-btn" onclick="seleccionarEstado('Bueno', this)">Bueno</button>
+                        <button type="button" class="estado-btn" onclick="seleccionarEstado('Regular', this)">Regular</button>
+                    </div>
+                </div>
+
+                @* DESCRIPCIÓN *@
+                <div class="field">
+                    <label class="field-label" for="descripcion">Descripción de la Historia</label>
+                    <textarea asp-for="Descripcion"
+                              id="descripcion"
+                              class="field-input"
+                              placeholder="Cuéntanos de dónde viene, su época, materiales y cualquier detalle que lo haga especial..."
+                              oninput="validarDescripcion(this)"></textarea>
+                    <div class="field-feedback" id="descFeedback"></div>
+                    <span asp-validation-for="Descripcion" class="field-feedback feedback-err"></span>
+                </div>
+
+                @* Campos ocultos requeridos por el DTO *@
+                @* IdUsuario — reemplazar con el ID del usuario logueado en sesión *@
+                <input type="hidden" asp-for="IdUsuario" value="1" />
+                <input type="hidden" asp-for="Ubicacion" value="" />
+            </div>
+
+            @* ── BOTÓN PUBLICAR ── *@
+            <div class="submit-section">
+                <button type="submit" class="btn-publicar">Publicar Artículo</button>
+                <p class="submit-note">Al publicar, aceptas nuestras condiciones de comunidad vintage.</p>
+            </div>
+
+        </form>
+
+        <p class="footer-tagline">Vintaloo — Hecho con amor para amantes de lo antiguo.</p>
+    </div>
+
+    <script>
+        // ── Previsualizar imágenes seleccionadas ──
+        function previsualizarImagenes(input) {
+            const grid = document.getElementById('previewGrid');
+            grid.innerHTML = '';
+            Array.from(input.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'preview-img';
+                    grid.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ── Drag & drop visual ──
+        const dropzone = document.getElementById('dropzone');
+        dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+        dropzone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropzone.classList.remove('drag-over');
+            const input = document.getElementById('inputImagenes');
+            input.files = e.dataTransfer.files;
+            previsualizarImagenes(input);
+        });
+
+        // ── Seleccionar estado ──
+        function seleccionarEstado(valor, btn) {
+            document.querySelectorAll('.estado-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('estadoHidden').value = valor;
+        }
+
+        // ── Validación en tiempo real: título ──
+        function validarTitulo(input) {
+            const fb = document.getElementById('tituloFeedback');
+            if (input.value.length >= 5) {
+                input.classList.add('valid');
+                input.classList.remove('invalid');
+                fb.textContent = '¡Título perfecto!';
+                fb.className = 'field-feedback feedback-ok';
+            } else if (input.value.length > 0) {
+                input.classList.add('invalid');
+                input.classList.remove('valid');
+                fb.textContent = 'El título debe tener al menos 5 caracteres.';
+                fb.className = 'field-feedback feedback-err';
+            } else {
+                input.classList.remove('valid', 'invalid');
+                fb.textContent = '';
+            }
+        }
+
+        // ── Validación en tiempo real: descripción ──
+        function validarDescripcion(textarea) {
+            const fb = document.getElementById('descFeedback');
+            if (textarea.value.length === 0) {
+                fb.textContent = '';
+            } else if (textarea.value.length < 30) {
+                fb.textContent = 'La descripción es un poco corta para convencer a un coleccionista.';
+                fb.className = 'field-feedback feedback-err';
+            } else {
+                fb.textContent = '¡Buena descripción!';
+                fb.className = 'field-feedback feedback-ok';
+            }
+        }
+    </script>
+
+</body>
+</html>
+}

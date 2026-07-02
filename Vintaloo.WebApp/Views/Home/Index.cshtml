@@ -1,0 +1,98 @@
+﻿@{
+    ViewData["Title"] = "Tu mercado retro-contemporáneo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@* ── Inyecta el CSS específico de esta página en el <head> ── *@
+@section Styles {
+    <link rel="stylesheet" href="~/css/landing.css" asp-append-version="true" />
+}
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-content">
+        <p class="hero-eyebrow">Costa Rica · Economía circular</p>
+        <h1 class="hero-title">
+            Tu mercado
+            <span class="retro">retro-</span>
+            contemporáneo
+        </h1>
+        <p class="hero-subtitle">
+            Vendé y comprá piezas únicas con conciencia en Costa Rica.
+        </p>
+        <div class="hero-btns">
+            <a href="#" class="btn-primary-vt">Empezar a explorar</a>
+            <a href="#" class="btn-secondary-vt">Vender algo</a>
+        </div>
+    </div>
+    <div class="hero-image-wrap">
+        <div class="hero-image-card">
+            <div class="hero-image-placeholder">
+                <div class="hero-image-placeholder">
+                    <img src="~/Imagen/logoVintaloo.png" alt="Logo Vintaloo" style="width: 580px; height: auto; border-radius: 20px;" />
+                </div>
+            </div> 
+        </div>
+        <div class="hero-badge">Categoría <span>Nro. 01</span></div>
+    </div>
+</section>
+
+<!-- TRES PASOS -->
+<section class="pasos-section">
+    <div class="pasos-header">
+        <h2>Tres pasos hacia lo sostenible</h2>
+        <p>Es fácil, rápido y tiene un impacto real.</p>
+    </div>
+    <div class="pasos-grid">
+        <div class="paso-card">
+            <div class="paso-icon">🔍</div>
+            <h3>Busca</h3>
+            <p>Explorá nuestra variedad de artículos únicos, antigüedades y piezas con historia.</p>
+        </div>
+        <div class="paso-card">
+            <div class="paso-icon">🛒</div>
+            <h3>Compra</h3>
+            <p>Transacciones seguras entre locales. Apoyá la economía de tu comunidad.</p>
+        </div>
+        <div class="paso-card">
+            <div class="paso-icon">📦</div>
+            <h3>Recibe</h3>
+            <p>Entregas rápidas con empaques 100% comprometidos con el ambiente.</p>
+        </div>
+    </div>
+</section>
+
+<!-- IMPACTO SOSTENIBLE -->
+<section class="impacto-section">
+    <div class="impacto-circle-wrap">
+        <div class="impacto-badge-top">+Alta Rentabilidad</div>
+        <div class="impacto-circle">
+            <div class="impacto-pct">75%</div>
+            <div class="impacto-circle-label">Menos huella de carbono por prenda</div>
+        </div>
+    </div>
+    <div class="impacto-content">
+        <h2>Impacto Sostenible en el Valle Central</h2>
+        <p>Cada objeto que circula en Vintaloo ahorra litros de agua y evita que materiales terminen en el vertedero.</p>
+        <ul class="impacto-puntos">
+            <li>Reducción masiva de residuos textiles</li>
+            <li>Fomento de artesanos y vendedores locales</li>
+            <li>Logística de bajo impacto optimizada para CR</li>
+        </ul>
+    </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-section">
+    <h2>¿Listo para encontrar tu próximo tesoro?</h2>
+    <p>Registrate para recibir notificaciones de los artículos que más te interesan.</p>
+    <div class="cta-form">
+        <input type="email" class="cta-input" placeholder="tu@correo.com" />
+        <a href="#" class="btn-primary-vt">Suscribirse</a>
+    </div>
+</section>
+
+@* ── Inyecta el JS específico de esta página al final del <body> ── *@
+@section Scripts {
+    <script src="~/js/landing.js" asp-append-version="true"></script>
+}

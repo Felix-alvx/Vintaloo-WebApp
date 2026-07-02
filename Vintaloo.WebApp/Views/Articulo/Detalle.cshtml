@@ -1,0 +1,261 @@
+﻿@model Application.DTOs.ArticuloDTO
+
+@{
+    ViewData["Title"] = Model.Titulo + " — Vintaloo";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/detalle.css" asp-append-version="true" />
+    <style>
+
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <a class="nav-logo" href="/Dashboard">
+        <div class="nav-logo-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm2 5h12v2H6zm3 5h6v2H9z"/></svg>
+        </div>
+        <span class="nav-logo-text">Vintaloo</span>
+    </a>
+    <a class="nav-back" href="/Dashboard">
+        ← Volver a la colección
+    </a>
+</nav>
+
+<!-- PÁGINA -->
+<div class="page">
+
+    <!-- ── GALERÍA ── -->
+    <div class="gallery">
+        <div class="gallery-main" id="mainImg">
+            @{
+                var imagenes = Model.ImagenesArticulos?.ToList() ?? new List<Application.DTOs.ImagenDTO>();
+                var primeraImg = imagenes.FirstOrDefault()?.UrlImagen ?? Model.UrlImagen;
+            }
+            @if (!string.IsNullOrEmpty(primeraImg))
+            {
+                <img id="imgPrincipal" src="@primeraImg" alt="@Model.Titulo" />
+            }
+            else
+            {
+                <div class="gallery-placeholder">
+                    <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <path d="m21 15-5-5L5 21"/>
+                    </svg>
+                </div>
+            }
+        </div>
+
+        @* Miniaturas *@
+        @if (imagenes.Count > 1)
+        {
+            <div class="gallery-thumbs">
+                @for (int i = 0; i < imagenes.Count; i++)
+                {
+                    <div class="thumb @(i == 0 ? "active" : "")"
+                         onclick="cambiarImagen('@imagenes[i].UrlImagen', this)">
+                        <img src="@imagenes[i].UrlImagen" alt="Foto @(i+1)" />
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- ── INFO ── -->
+    <div class="info">
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="/Dashboard">Inicio</a>
+            <span>›</span>
+            <a href="/Dashboard">Colección</a>
+            <span>›</span>
+            @Model.Titulo
+        </div>
+
+        <!-- Título -->
+        <h1 class="titulo">
+            @{
+                var palabras = Model.Titulo.Split(' ');
+                var primera = string.Join(" ", palabras.Take(2));
+                var resto   = string.Join(" ", palabras.Skip(2));
+            }
+            @primera
+            @if (!string.IsNullOrEmpty(resto))
+            {
+                <span class="titulo-italic">@resto</span>
+            }
+        </h1>
+
+        <!-- Precio -->
+        <div class="precio-row">
+            <span class="precio">
+                ₡@Model.Precio.ToString("N2")
+            </span>
+            <span class="badge-estado @badgeClass(Model.EstadoProducto)">
+                @Model.EstadoProducto
+            </span>
+        </div>
+
+        <!-- Descripción -->
+        @if (!string.IsNullOrEmpty(Model.Descripcion))
+        {
+            <p class="descripcion">@Model.Descripcion</p>
+        }
+
+        <!-- Acciones -->
+        <div class="acciones">
+            <a href="https://wa.me/?text=Hola,%20vi%20este%20artículo%20en%20Vintaloo:%20@Model.Titulo"
+               target="_blank"
+               class="btn-whatsapp">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.553 4.122 1.523 5.855L.057 23.886l6.174-1.447A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.213-3.667.86.929-3.573-.235-.369A9.818 9.818 0 1112 21.818z"/>
+                </svg>
+                Contactar por WhatsApp
+            </a>
+
+            <div class="btn-row">
+                    <form asp-controller="Favorito" asp-action="Agregar" method="post" style="display:contents">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="idArticulo" value="@Model.IdArticulo" />
+                        <button type="submit" class="btn-fav">♡ Favoritos</button>
+                    </form>
+                <button class="btn-compartir" onclick="compartir()">
+                    ↗ Compartir
+                </button>
+            </div>
+        </div>
+
+        <!-- Reportar -->
+        <div class="reportar">
+            <a href="/Reporte/Crear?idArticulo=@Model.IdArticulo" class="btn-reportar">
+                ⚑ Reportar este anuncio
+            </a>
+        </div>
+
+        <!-- Vendedor -->
+        <div class="vendedor">
+            <div class="vendedor-header">
+                <div class="vendedor-avatar">
+                    @if (Model.VendedorFoto != null)
+                    {
+                        <img src="@Model.VendedorFoto" alt="@Model.VendedorNombre" />
+                    }
+                    else
+                    {
+                        @(Model.VendedorNombre?.Substring(0, 1).ToUpper() ?? "V")
+                    }
+                </div>
+                <div>
+                    <div class="vendedor-nombre">@(Model.VendedorNombre ?? "Vendedor")</div>
+                    <div class="vendedor-tag">Vendedor verificado</div>
+                </div>
+                <div class="vendedor-rating">
+                    ★ @(Model.VendedorRating?.ToString("0.0") ?? "4.9")
+                </div>
+            </div>
+            <div class="vendedor-stats">
+                <div class="stat">
+                    <div class="stat-label">Ventas</div>
+                    <div class="stat-value">@(Model.VendedorVentas?.ToString() ?? "—")</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Responde en</div>
+                    <div class="stat-value">1hr</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Especificaciones -->
+        <div class="specs">
+            <div class="specs-tabs">
+                <button class="specs-tab active" onclick="cambiarTab('especificaciones', this)">Especificaciones</button>
+                <button class="specs-tab" onclick="cambiarTab('ubicacion', this)">Ubicación</button>
+            </div>
+
+            <div class="specs-content active" id="tab-especificaciones">
+                <div class="spec-row">
+                    <span class="spec-key">Estado producto</span>
+                    <span class="spec-value">@Model.EstadoProducto</span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-key">Estado publicación</span>
+                    <span class="spec-value">@(Model.EstadoPublicacion ?? "Disponible")</span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-key">Material principal</span>
+                    <span class="spec-value">Por consultar</span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-key">Origen</span>
+                    <span class="spec-value">@(Model.Ubicacion ?? "Costa Rica")</span>
+                </div>
+            </div>
+
+            <div class="specs-content" id="tab-ubicacion">
+                <div class="spec-row">
+                    <span class="spec-key">Ubicación</span>
+                    <span class="spec-value">@(Model.Ubicacion ?? "No especificada")</span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-key">Envío</span>
+                    <span class="spec-value">A coordinar con el vendedor</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@functions {
+    string badgeClass(string estado)
+    {
+        return estado?.ToLower() switch
+        {
+            "excelente" => "badge-excelente",
+            "bueno"     => "badge-bueno",
+            "regular"   => "badge-regular",
+            _           => "badge-bueno"
+        };
+    }
+}
+
+<script>
+    function cambiarImagen(url, thumb) {
+        document.getElementById('imgPrincipal').src = url;
+        document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+        thumb.classList.add('active');
+    }
+
+    function cambiarTab(tab, btn) {
+        document.querySelectorAll('.specs-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.specs-tab').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    function compartir() {
+        if (navigator.share) {
+            navigator.share({ title: '@Model.Titulo', url: window.location.href });
+        } else {
+            navigator.clipboard.writeText(window.location.href);
+            alert('Enlace copiado al portapapeles');
+        }
+    }
+</script>
+
+</body>
+</html>

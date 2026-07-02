@@ -1,0 +1,426 @@
+﻿*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --cream: #F2EDE4;
+    --warm: #EDE5D8;
+    --terra: #C05A35;
+    --terra-dk: #9A4428;
+    --terra-lt: #E8A080;
+    --ink: #1C1814;
+    --muted: #8A7E74;
+    --border: #DDD5C8;
+    --success: #4A7C59;
+    --input-bg: #FDFAF6;
+}
+
+body {
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+}
+
+/* ── NAV ── */
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 56px;
+    border-bottom: 1px solid var(--border);
+    background: var(--cream);
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.nav-logo-icon {
+    width: 30px;
+    height: 30px;
+    background: var(--terra);
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .nav-logo-icon svg {
+        width: 16px;
+        height: 16px;
+        fill: white;
+    }
+
+.nav-logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.btn-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all .2s;
+}
+
+    .btn-close:hover {
+        background: var(--warm);
+        color: var(--terra);
+        border-color: var(--terra);
+    }
+
+/* ── LAYOUT ── */
+.page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 3rem 2rem 5rem;
+}
+
+/* ── HEADER ── */
+.page-header {
+    margin-bottom: 2.5rem;
+    animation: fadeUp .4s ease both;
+}
+
+.page-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: var(--terra);
+    line-height: 1.1;
+    margin-bottom: .5rem;
+}
+
+.page-subtitle {
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+/* ── SECTION TITLE ── */
+.section-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 1rem;
+}
+
+/* ── DROPZONE ── */
+.dropzone-section {
+    margin-bottom: 2.5rem;
+    animation: fadeUp .4s ease .08s both;
+}
+
+.dropzone {
+    border: 2px dashed var(--terra-lt);
+    border-radius: 14px;
+    background: var(--warm);
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: background .2s, border-color .2s;
+    position: relative;
+}
+
+    .dropzone:hover,
+    .dropzone.drag-over {
+        background: #EAE0D2;
+        border-color: var(--terra);
+    }
+
+    .dropzone input[type=file] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+    }
+
+.dropzone-icon {
+    width: 52px;
+    height: 52px;
+    background: var(--terra-lt);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+    .dropzone-icon svg {
+        width: 24px;
+        height: 24px;
+        fill: white;
+    }
+
+.dropzone-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: .3rem;
+}
+
+.dropzone-hint {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 1.2rem;
+}
+
+.btn-seleccionar {
+    display: inline-block;
+    padding: 9px 24px;
+    background: var(--terra);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .2s;
+    pointer-events: none;
+}
+
+.dropzone:hover .btn-seleccionar {
+    background: var(--terra-dk);
+}
+
+.preview-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 1rem;
+}
+
+.preview-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    animation: fadeUp .3s ease both;
+}
+
+/* ── FORM SECTION ── */
+.form-section {
+    animation: fadeUp .4s ease .14s both;
+}
+
+.field {
+    margin-bottom: 1.5rem;
+}
+
+.field-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+
+.field-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--input-bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color .2s;
+}
+
+    .field-input:focus {
+        border-color: var(--terra);
+    }
+
+    .field-input.valid {
+        border-color: var(--success);
+    }
+
+    .field-input.invalid {
+        border-color: #C0392B;
+    }
+
+    .field-input::placeholder {
+        color: var(--muted);
+        font-style: italic;
+    }
+
+.field-feedback {
+    font-size: 0.78rem;
+    margin-top: 5px;
+    min-height: 18px;
+    font-style: italic;
+}
+
+.feedback-ok {
+    color: var(--success);
+}
+
+.feedback-err {
+    color: #C0392B;
+}
+
+/* ── DOS COLUMNAS ── */
+.row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+select.field-input {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238A7E74' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+}
+
+/* ── ESTADO TOGGLE ── */
+.estado-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.estado-btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--input-bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all .2s;
+}
+
+    .estado-btn:hover {
+        border-color: var(--terra);
+        color: var(--terra);
+    }
+
+    .estado-btn.active {
+        border-color: var(--terra);
+        background: var(--terra);
+        color: white;
+        font-weight: 500;
+    }
+
+/* Hidden input para el estado seleccionado */
+#estadoHidden {
+    display: none;
+}
+
+/* ── TEXTAREA ── */
+textarea.field-input {
+    resize: vertical;
+    min-height: 140px;
+    line-height: 1.6;
+}
+
+/* ── SUBMIT ── */
+.submit-section {
+    margin-top: 2.5rem;
+    animation: fadeUp .4s ease .2s both;
+}
+
+.btn-publicar {
+    width: 100%;
+    padding: 16px;
+    background: var(--terra);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .2s, transform .1s;
+    letter-spacing: 0.02em;
+}
+
+    .btn-publicar:hover {
+        background: var(--terra-dk);
+    }
+
+    .btn-publicar:active {
+        transform: scale(.99);
+    }
+
+.submit-note {
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: .75rem;
+}
+
+.footer-tagline {
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--terra-lt);
+    margin-top: 3rem;
+}
+
+/* ── VALIDATION SUMMARY ── */
+.validation-summary {
+    background: #FDF0ED;
+    border: 1px solid var(--terra-lt);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--terra-dk);
+}
+
+/* ── MENSAJE ÉXITO ── */
+.alert-success {
+    background: #EDF7F0;
+    border: 1px solid #A8D5B5;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--success);
+}
+
+/* ── ANIMATIONS ── */
+@@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

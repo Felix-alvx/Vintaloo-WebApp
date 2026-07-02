@@ -1,0 +1,79 @@
+﻿
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Vintaloo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
+
+    <!-- Sección para que cada vista inyecte su propio CSS -->
+    @await RenderSectionAsync("Styles", required: false)
+
+    <style>
+       
+    </style>
+</head>
+<body>
+
+    <nav class="navbar-vintaloo">
+        <a class="brand" asp-controller="Home" asp-action="Index">Vinta<span>loo</span></a>
+        <ul class="nav-links">
+            <li><a asp-controller="Home" asp-action="Index">Cómo funciona</a></li>
+            <li><a href="#">Explorar</a></li>
+            <li><a href="#">Vender</a></li>
+            <li><a href="/Auth/Login" class="btn-nav-primary">Iniciar sesión</a></li>
+        </ul>
+    </nav>
+
+    @RenderBody()
+
+    <footer class="footer-vintaloo">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-brand mb-3">Vinta<span>loo</span></div>
+                <p style="font-size:0.88rem; line-height:1.7; max-width:260px;">
+                    El mercado retro-contemporáneo de Costa Rica. Comprá y vendé con conciencia.
+                </p>
+            </div>
+            <div>
+                <h5>Vintaloo</h5>
+                <ul>
+                    <li><a href="#">Cómo funciona</a></li>
+                    <li><a href="#">Explorar artículos</a></li>
+                    <li><a href="#">Vender</a></li>
+                    <li><a href="#">Categorías</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5>Legal</h5>
+                <ul>
+                    <li><a href="#">Términos</a></li>
+                    <li><a href="#">Privacidad</a></li>
+                    <li><a href="#">Cookies</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5>Síguenos</h5>
+                <ul>
+                    <li><a href="#">Instagram</a></li>
+                    <li><a href="#">Facebook</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 Vintaloo · Costa Rica</span>
+            <span>Hecho con 💚 en CR</span>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

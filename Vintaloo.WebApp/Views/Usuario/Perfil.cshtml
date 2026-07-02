@@ -1,0 +1,219 @@
+﻿@model Application.DTOs.PerfilDTO
+
+@{
+    ViewData["Title"] = "Mi Perfil — Vintaloo";
+    Layout = null;
+    var inicial = Model.Nombre?.Substring(0, 1).ToUpper() ?? "V";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/perfil.css" asp-append-version="true" />
+
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav>
+        <a class="nav-logo" href="/Dashboard">
+            <div class="nav-logo-icon">
+                <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm2 5h12v2H6zm3 5h6v2H9z" /></svg>
+            </div>
+            <span class="nav-logo-text">Vintaloo</span>
+        </a>
+        <div class="nav-actions">
+            <a href="/Dashboard" class="btn-nav">← Volver</a>
+            <form asp-controller="Auth" asp-action="Logout" method="post" style="display:inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-nav">Cerrar sesión</button>
+            </form>
+        </div>
+    </nav>
+
+    <!-- PÁGINA -->
+    <div class="page">
+
+        @* Mensajes *@
+        @if (TempData["Mensaje"] != null)
+        {
+            <div class="alert alert-success">@TempData["Mensaje"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-error">@TempData["Error"]</div>
+        }
+
+        <!-- ── PERFIL HEADER ── -->
+        <div class="perfil-header">
+            <div class="avatar">
+                @if (!string.IsNullOrEmpty(Model.FotoPerfil))
+                {
+                    <img src="@Model.FotoPerfil" alt="@Model.Nombre" />
+                }
+                else
+                {
+                    @inicial
+                }
+            </div>
+
+            <div class="perfil-info">
+                <div class="perfil-nombre">@Model.Nombre</div>
+                <div class="perfil-correo">@Model.Correo</div>
+                <div class="perfil-meta">
+                    @if (!string.IsNullOrEmpty(Model.Ubicacion))
+                    {
+                        <span class="meta-item">📍 @Model.Ubicacion</span>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Telefono))
+                    {
+                        <span class="meta-item">📞 @Model.Telefono</span>
+                    }
+                    <span class="meta-item">🛍 @Model.Articulos.Count artículos publicados</span>
+                </div>
+            </div>
+
+            <div class="perfil-acciones">
+                <a href="/Usuario/EditarPerfil" class="btn-editar">✏ Editar perfil</a>
+            </div>
+        </div>
+
+        <!-- ── STATS ── -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-num">@Model.Articulos.Count</div>
+                <div class="stat-label">Publicados</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num">
+                    @Model.Articulos.Count(a => a.EstadoPublicacion?.ToLower() == "disponible")
+                </div>
+                <div class="stat-label">Disponibles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num">
+                    @Model.Articulos.Count(a => a.EstadoPublicacion?.ToLower() == "vendido")
+                </div>
+                <div class="stat-label">Vendidos</div>
+            </div>
+        </div>
+
+        <!-- ── ARTÍCULOS ── -->
+        <div class="seccion-header">
+            <h2 class="seccion-titulo">Mis artículos</h2>
+            <div class="filtro-tabs">
+                <button class="filtro-tab active" onclick="filtrar('todos', this)">Todos</button>
+                <button class="filtro-tab" onclick="filtrar('disponible', this)">Disponibles</button>
+                <button class="filtro-tab" onclick="filtrar('vendido', this)">Vendidos</button>
+                <button class="filtro-tab" onclick="filtrar('reservado', this)">Reservados</button>
+            </div>
+        </div>
+
+        <div class="articulos-grid" id="gridArticulos">
+            @if (!Model.Articulos.Any())
+            {
+                <div class="empty">
+                    <div class="empty-title">Aún no has publicado nada</div>
+                    <p>¡Empieza a compartir tus tesoros vintage!</p>
+                    <a href="/Articulo/Crear" class="btn-publicar-empty">+ Publicar artículo</a>
+                </div>
+            }
+            else
+            {
+                @foreach (var articulo in Model.Articulos)
+                {
+                    var estadoPub = articulo.EstadoPublicacion?.ToLower() ?? "disponible";
+                    var badgeClass = estadoPub switch
+                    {
+                        "vendido" => "badge-vendido",
+                        "reservado" => "badge-reservado",
+                        _ => "badge-disponible"
+                    };
+
+                    <div class="articulo-card" data-estado="@estadoPub">
+                        <div class="card-img-wrap">
+                            @if (!string.IsNullOrEmpty(articulo.UrlImagen))
+                            {
+                                <img class="card-img" src="@articulo.UrlImagen" alt="@articulo.Titulo" />
+                            }
+                            else
+                            {
+                                <div class="card-img-placeholder">
+                                    <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                                        <circle cx="8.5" cy="8.5" r="1.5" />
+                                        <path d="m21 15-5-5L5 21" />
+                                    </svg>
+                                </div>
+                            }
+                            <span class="badge-pub @badgeClass">@(articulo.EstadoPublicacion ?? "disponible")</span>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="card-titulo" title="@articulo.Titulo">@articulo.Titulo</div>
+                            <div class="card-precio">₡@articulo.Precio.ToString("N2")</div>
+
+                            <!-- Cambiar estado -->
+                            <div class="estado-selector">
+                                @* Solo muestra opciones relevantes según el estado actual *@
+                                @if (estadoPub != "vendido")
+                                {
+                                    <form asp-controller="Usuario" asp-action="CambiarEstadoArticulo"
+                                          method="post" style="display:contents">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="idArticulo" value="@articulo.IdArticulo" />
+                                        <input type="hidden" name="estado" value="vendido" />
+                                        <button type="submit" class="btn-estado vendido">✓ Vendido</button>
+                                    </form>
+                                }
+                                @if (estadoPub != "reservado")
+                                {
+                                    <form asp-controller="Usuario" asp-action="CambiarEstadoArticulo"
+                                          method="post" style="display:contents">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="idArticulo" value="@articulo.IdArticulo" />
+                                        <input type="hidden" name="estado" value="reservado" />
+                                        <button type="submit" class="btn-estado">Reservar</button>
+                                    </form>
+                                }
+                                @if (estadoPub != "disponible")
+                                {
+                                    <form asp-controller="Usuario" asp-action="CambiarEstadoArticulo"
+                                          method="post" style="display:contents">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="idArticulo" value="@articulo.IdArticulo" />
+                                        <input type="hidden" name="estado" value="disponible" />
+                                        <button type="submit" class="btn-estado">Disponible</button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+    </div>
+
+    <script>
+        function filtrar(estado, btn) {
+            document.querySelectorAll('.filtro-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            document.querySelectorAll('.articulo-card').forEach(card => {
+                if (estado === 'todos' || card.dataset.estado === estado) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
+

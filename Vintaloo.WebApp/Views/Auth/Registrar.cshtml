@@ -1,0 +1,448 @@
+﻿
+@model Application.DTOs.RegisterDTO
+
+@{
+    ViewData["Title"] = "Crear cuenta — Vintaloo";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --cream:    #F2EDE4;
+            --warm:     #EDE5D8;
+            --terra:    #C05A35;
+            --terra-dk: #9A4428;
+            --terra-lt: #E8A080;
+            --ink:      #1C1814;
+            --muted:    #8A7E74;
+            --border:   #DDD5C8;
+            --success:  #4A7C59;
+            --error:    #C0392B;
+            --input-bg: #FDFAF6;
+        }
+
+        body {
+            background: var(--cream);
+            font-family: 'DM Sans', sans-serif;
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── NAV ── */
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            height: 56px;
+            border-bottom: 1px solid var(--border);
+            background: var(--cream);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .nav-logo-icon {
+            width: 30px;
+            height: 30px;
+            background: var(--terra);
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-logo-icon svg { width: 16px; height: 16px; fill: white; }
+
+        .nav-logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .nav-link {
+            font-size: 0.82rem;
+            color: var(--muted);
+            text-decoration: none;
+            transition: color .2s;
+        }
+
+        .nav-link:hover { color: var(--terra); }
+
+        /* ── LAYOUT ── */
+        .page {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1rem;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 480px;
+            animation: fadeUp .4s ease both;
+        }
+
+        /* ── HEADER ── */
+        .card-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .card-icon {
+            width: 52px;
+            height: 52px;
+            background: var(--terra);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+
+        .card-icon svg { width: 26px; height: 26px; fill: white; }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: .3rem;
+        }
+
+        .card-subtitle {
+            font-size: 0.84rem;
+            color: var(--muted);
+        }
+
+        /* ── ALERTS ── */
+        .alert {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.84rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .alert-error {
+            background: #FDF0ED;
+            border: 1px solid var(--terra-lt);
+            color: var(--terra-dk);
+        }
+
+        .alert-success {
+            background: #EDF7F0;
+            border: 1px solid #A8D5B5;
+            color: var(--success);
+        }
+
+        /* ── FORM ── */
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .field {
+            margin-bottom: 1.2rem;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 5px;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            background: var(--input-bg);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            color: var(--ink);
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .field-input:focus   { border-color: var(--terra); }
+        .field-input.valid   { border-color: var(--success); }
+        .field-input.invalid { border-color: var(--error); }
+        .field-input::placeholder { color: var(--muted); }
+
+        .field-feedback {
+            font-size: 0.75rem;
+            margin-top: 4px;
+            min-height: 16px;
+        }
+
+        .feedback-ok  { color: var(--success); }
+        .feedback-err { color: var(--error); }
+
+        /* Indicador de fuerza de contraseña */
+        .pwd-strength {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .pwd-bar {
+            height: 3px;
+            flex: 1;
+            border-radius: 2px;
+            background: var(--border);
+            transition: background .3s;
+        }
+
+        .pwd-bar.weak   { background: var(--error); }
+        .pwd-bar.medium { background: var(--terra); }
+        .pwd-bar.strong { background: var(--success); }
+
+        .pwd-label {
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        /* ── BOTÓN ── */
+        .btn-submit {
+            width: 100%;
+            padding: 13px;
+            background: var(--terra);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background .2s, transform .1s;
+            margin-top: .5rem;
+        }
+
+        .btn-submit:hover  { background: var(--terra-dk); }
+        .btn-submit:active { transform: scale(.99); }
+
+        /* ── FOOTER ── */
+        .card-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+
+        .card-footer a {
+            color: var(--terra);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .card-footer a:hover { text-decoration: underline; }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 1.2rem 0;
+            color: var(--border);
+            font-size: 0.78rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ── TAGLINE ── */
+        .tagline {
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 0.8rem;
+            color: var(--terra-lt);
+            padding: 1.5rem 0;
+        }
+
+        /* keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        media (max-width: 480px) {
+            .row-2 { grid-template-columns: 1fr; }
+            .card  { padding: 1.8rem 1.2rem; }
+                }*/
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <a class="nav-logo" href="/Dashboard">
+        <div class="nav-logo-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm2 5h12v2H6zm3 5h6v2H9z"/></svg>
+        </div>
+        <span class="nav-logo-text">Vintaloo</span>
+    </a>
+    <a class="nav-link" href="/Auth/Login">¿Ya tienes cuenta? Inicia sesión</a>
+</nav>
+
+<!-- PÁGINA -->
+<div class="page">
+    <div class="card">
+
+        <!-- Header -->
+        <div class="card-header">
+            <div class="card-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v1h20v-1c0-3.3-6.7-5-10-5z"/></svg>
+            </div>
+            <h1 class="card-title">Crear cuenta</h1>
+            <p class="card-subtitle">Únete a la comunidad vintage más especial</p>
+        </div>
+
+        @* Mensaje de error *@
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-error">@TempData["Error"]</div>
+        }
+
+        @* Errores de validación *@
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-error">
+                @Html.ValidationSummary(false)
+            </div>
+        }
+
+        @* ── FORMULARIO ── *@
+        <form asp-controller="Auth" asp-action="Registrar" method="post" id="formRegistro">
+            @Html.AntiForgeryToken()
+
+            <!-- Nombre y Teléfono -->
+            <div class="row-2">
+                <div class="field">
+                    <label class="field-label" for="nombre">Nombre</label>
+                    <input asp-for="Nombre"
+                           id="nombre"
+                           class="field-input"
+                           placeholder="Tu nombre"
+                           oninput="validarCampo(this, 2)"
+                           autocomplete="name" />
+                    <span asp-validation-for="Nombre" class="field-feedback feedback-err"></span>
+                </div>
+
+                <div class="field">
+                    <label class="field-label" for="telefono">Teléfono</label>
+                    <input asp-for="Telefono"
+                           id="telefono"
+                           class="field-input"
+                           placeholder="8888-8888"
+                           autocomplete="tel" />
+                </div>
+            </div>
+
+            <!-- Correo -->
+            <div class="field">
+                <label class="field-label" for="correo">Correo electrónico</label>
+                <input asp-for="Correo"
+                       id="correo"
+                       type="email"
+                       class="field-input"
+                       placeholder="tu@correo.com"
+                       oninput="validarCorreo(this)"
+                       autocomplete="email" />
+                <div class="field-feedback" id="correoFeedback"></div>
+                <span asp-validation-for="Correo" class="field-feedback feedback-err"></span>
+            </div>
+
+            <!-- Ubicación -->
+            <div class="field">
+                <label class="field-label" for="ubicacion">Ubicación</label>
+                <input asp-for="Ubicacion"
+                       id="ubicacion"
+                       class="field-input"
+                       placeholder="San José, Costa Rica"
+                       autocomplete="address-level2" />
+            </div>
+
+            <!-- Contraseña -->
+            <div class="field">
+                <label class="field-label" for="password">Contraseña</label>
+                <input asp-for="Password"
+                       id="password"
+                       type="password"
+                       class="field-input"
+                       placeholder="Mínimo 6 caracteres"
+                       oninput="medirFuerza(this)"
+                       autocomplete="new-password" />
+                <div class="pwd-strength">
+                    <div class="pwd-bar" id="bar1"></div>
+                    <div class="pwd-bar" id="bar2"></div>
+                    <div class="pwd-bar" id="bar3"></div>
+                </div>
+                <div class="pwd-label" id="pwdLabel"></div>
+                <span asp-validation-for="Password" class="field-feedback feedback-err"></span>
+            </div>
+
+            <!-- Confirmar contraseña -->
+            <div class="field">
+                <label class="field-label" for="confirmar">Confirmar contraseña</label>
+                <input type="password"
+                       id="confirmar"
+                       class="field-input"
+                       placeholder="Repite tu contraseña"
+                       oninput="validarConfirmar(this)"
+                       autocomplete="new-password" />
+                <div class="field-feedback" id="confirmarFeedback"></div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="btnRegistrar">
+                Crear mi cuenta
+            </button>
+        </form>
+
+        <div class="divider">o</div>
+
+        <div class="card-footer">
+            ¿Ya tienes cuenta?
+            <a href="/Auth/Login">Inicia sesión aquí</a>
+        </div>
+
+    </div>
+</div>
+
+<p class="tagline">Vintaloo — Hecho con amor para amantes de lo Vintage.</p>
+
+    <!-- Llama al archivo JavaScript -->
+    <script src="~/js/register.js"></script>
+
+</body>
+</html>

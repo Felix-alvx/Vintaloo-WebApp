@@ -1,0 +1,629 @@
+﻿@model List<Application.DTOs.ArticuloDTO>
+
+@{
+    ViewData["Title"] = "Vintaloo - Curated Collection";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --cream:    #F5F0E8;
+            --warm:     #F0E8D8;
+            --terra:    #C85C3A;
+            --terra-dk: #A04830;
+            --ink:      #1A1714;
+            --muted:    #7A7268;
+            --border:   #E0D8CC;
+            --badge-disponible: #3A7A4A;
+            --badge-vendido:    #C85C3A;
+            --badge-reservado: #8A6A2A;
+        }
+
+        body {
+            background-color: var(--cream);
+            font-family: 'DM Sans', sans-serif;
+            color: var(--ink);
+            min-height: 100vh;
+        }
+
+        /* ── NAV ── */
+        nav {
+            background: var(--cream);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .nav-logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--terra);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-logo-icon svg { width: 18px; height: 18px; fill: white; }
+
+        .nav-logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--ink);
+            letter-spacing: 0.02em;
+        }
+
+        .nav-search {
+            flex: 1;
+            max-width: 340px;
+            margin: 0 2rem;
+            position: relative;
+        }
+
+        .nav-search input {
+            width: 100%;
+            padding: 7px 14px 7px 36px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: var(--warm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            color: var(--ink);
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .nav-search input:focus { border-color: var(--terra); }
+
+        .nav-search input::placeholder { color: var(--muted); }
+
+        .nav-search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-publicar {
+            padding: 7px 18px;
+            border: 1px solid var(--terra);
+            border-radius: 20px;
+            background: transparent;
+            color: var(--terra);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background .2s, color .2s;
+        }
+
+        .btn-publicar:hover { background: var(--terra); color: white; }
+
+        .btn-signin {
+            padding: 7px 18px;
+            border: none;
+            border-radius: 20px;
+            background: var(--terra);
+            color: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background .2s;
+        }
+
+        .btn-signin:hover { background: var(--terra-dk); }
+
+        .nav-icon-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            border-radius: 50%;
+            transition: background .2s;
+            text-decoration: none;
+        }
+
+        .nav-icon-btn:hover { background: var(--warm); color: var(--terra); }
+
+        /* ── MAIN ── */
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem;
+        }
+
+        /* ── HEADER ── */
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            color: var(--ink);
+            margin-bottom: 1.5rem;
+        }
+
+        /* ── FILTER BAR ── */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .filter-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--muted);
+            font-family: 'DM Sans', sans-serif;
+            transition: all .2s;
+        }
+
+        .tag:hover { border-color: var(--terra); color: var(--terra); }
+
+        .tag.active {
+            background: var(--terra);
+            border-color: var(--terra);
+            color: white;
+        }
+
+        .filter-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .price-range-label {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--muted);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .price-range-values {
+            font-size: 0.72rem;
+            color: var(--muted);
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, var(--terra) 60%, var(--border) 60%);
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--terra);
+            border: 2px solid white;
+            box-shadow: 0 1px 4px rgba(0,0,0,.2);
+        }
+
+        .estado-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .estado-btn {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--muted);
+            transition: all .2s;
+        }
+
+        .estado-btn:hover,
+        .estado-btn.active { border-color: var(--terra); color: var(--terra); }
+
+        /* ── GRID ── */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* ── CARD ── */
+        .card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: transform .25s, box-shadow .25s;
+            cursor: pointer;
+            animation: fadeUp .4s ease both;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(26,23,20,.1);
+        }
+
+       /* ── EMPTY STATE ──keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+                } */
+
+        .card:nth-child(1) { animation-delay: .05s; }
+        .card:nth-child(2) { animation-delay: .10s; }
+        .card:nth-child(3) { animation-delay: .15s; }
+        .card:nth-child(4) { animation-delay: .20s; }
+        .card:nth-child(5) { animation-delay: .25s; }
+        .card:nth-child(6) { animation-delay: .30s; }
+
+        .card-img {
+            width: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            background: var(--warm);
+            display: block;
+            position: relative;
+        }
+
+        .card-img-wrap {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-img-placeholder {
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: var(--warm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--border);
+        }
+
+        .badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: white;
+        }
+
+        .badge-disponible { background: var(--badge-disponible); }
+        .badge-vendido    { background: var(--badge-vendido); }
+        .badge-reservado  { background: var(--badge-reservado); }
+
+        .card-body {
+            padding: 14px 16px 16px;
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .card-desc {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-price {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        .btn-cart {
+            width: 30px;
+            height: 30px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--muted);
+            transition: all .2s;
+            text-decoration: none;
+        }
+
+        .btn-cart:hover { border-color: var(--terra); color: var(--terra); }
+
+        /* ── EMPTY STATE ── */
+        .empty {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--muted);
+        }
+
+        .empty-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            margin-bottom: .5rem;
+            color: var(--ink);
+        }
+
+        /* ── LOADING ── */
+        .loading {
+            display: flex;
+            justify-content: center;
+            padding: 5rem;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--terra);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+
+        @@keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <!-- ── NAVBAR ── -->
+    <nav>
+        <a class="nav-logo" href="/">
+            <div class="nav-logo-icon">
+                <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm2 5h12v2H6zm3 5h6v2H9z" /></svg>
+            </div>
+            <span class="nav-logo-text">Vintaloo</span>
+        </a>
+
+        <div class="nav-search">
+            <span class="nav-search-icon">&#128269;</span>
+            <input type="text" id="searchInput" placeholder="Search curated vintage pieces..." oninput="filtrarArticulos()" />
+        </div>
+
+        <div class="nav-actions">
+            <a href="/Articulo/Crear" class="btn-publicar">Publicar</a>
+            <a href="/Auth/Login" class="btn-signin">Sign In</a>
+            <a href="/Favorito" class="nav-icon-btn" title="Favoritos">&#9825;</a>
+            <a href="/Usuario/Perfil" class="nav-icon-btn" title="Perfil">&#9881;</a>
+        </div>
+    </nav>
+
+    <!-- ── MAIN ── -->
+    <main>
+        <h1 class="page-title">Vintage Collection</h1>
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar">
+            <div class="filter-tags">
+                <button class="tag active" onclick="filtrarPorCategoria('', this)">Todos</button>
+                <button class="tag" onclick="filtrarPorCategoria('Ropa', this)">Ropa ↓</button>
+                <button class="tag" onclick="filtrarPorCategoria('Vinyl', this)">Vinyl ↓</button>
+                <button class="tag" onclick="filtrarPorCategoria('Mobiliario', this)">Mobiliario ↓</button>
+            </div>
+
+            <div class="filter-right">
+                <div>
+                    <div class="price-range-label">Price Range</div>
+                    <input type="range" min="0" max="5000000" value="5000000" oninput="actualizarPrecio(this.value)" />
+                    <div class="price-range-values">₡0 — ₡<span id="precioMax">3000</span></div>
+                </div>
+                <div class="estado-btns">
+                    <button class="estado-btn active" onclick="filtrarEstado('', this)">Nuevo</button>
+                    <button class="estado-btn" onclick="filtrarEstado('Bueno', this)">Usado</button>
+                    <button class="estado-btn" onclick="filtrarEstado('Regular', this)">Regular</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRID -->
+        <div id="loading" class="loading"><div class="spinner"></div></div>
+        <div id="grid" class="grid" style="display:none"></div>
+        <div id="empty" class="empty" style="display:none">
+            <div class="empty-title">No hay artículos disponibles</div>
+            <p>Sé el primero en publicar algo único.</p>
+        </div>
+    </main>
+
+    <script>
+        let categoriaActiva   = '';
+        let estadoActivo      = '';
+        let precioMaxActivo   = 999999;
+        let busquedaActiva    = '';
+
+        // PARA VER SI FUNCIONA
+        let todosLosArticulos = @Html.Raw(Json.Serialize(Model));
+
+
+
+        // ── Renderizar cards filtradas ──
+        function renderizar() {
+            const filtrados = todosLosArticulos.filter(a => {
+                const matchCategoria = !categoriaActiva || (a.categoria && a.categoria.includes(categoriaActiva));
+                const matchEstado    = !estadoActivo    || a.estadoProducto === estadoActivo;
+                const matchPrecio    = a.precio <= precioMaxActivo;
+                const matchBusqueda  = !busquedaActiva  || a.titulo.toLowerCase().includes(busquedaActiva.toLowerCase());
+                return matchCategoria && matchEstado && matchPrecio && matchBusqueda;
+            });
+
+            const grid  = document.getElementById('grid');
+            const empty = document.getElementById('empty');
+
+            if (filtrados.length === 0) {
+                grid.style.display  = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            grid.style.display  = 'grid';
+            empty.style.display = 'none';
+
+            grid.innerHTML = filtrados.map((a, i) => `
+                <div class="card" style="animation-delay:${i * 0.05}s" onclick="window.location='/Articulo/Detalle/${a.idArticulo}'">
+                    <div class="card-img-wrap">
+                        ${a.urlImagen
+                            ? `<img class="card-img" src="${a.urlImagen}" alt="${a.titulo}" loading="lazy" />`
+                            : `<div class="card-img-placeholder">
+                                   <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                       <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                                       <path d="m21 15-5-5L5 21"/>
+                                   </svg>
+                               </div>`
+                        }
+                        <span class="badge ${badgeClass(a.estadoPublicacion)}">${a.estadoPublicacion ?? 'Disponible'}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-title">${a.titulo}</div>
+                        <div class="card-desc">${a.descripcion ?? ''}</div>
+                        <div class="card-footer">
+                            <span class="card-price">$${Number(a.precio).toLocaleString('es-CR', {minimumFractionDigits: 2})}</span>
+                            <button class="btn-cart" onclick="event.stopPropagation(); agregarFavorito(${a.idArticulo})" title="Agregar a favoritos">
+                                &#9825;
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function badgeClass(estado) {
+            if (!estado) return 'badge-disponible';
+            const e = estado.toLowerCase();
+            if (e.includes('vendido'))   return 'badge-vendido';
+            if (e.includes('reservado')) return 'badge-reservado';
+            return 'badge-disponible';
+        }
+
+        // ── Filtros ──
+        function filtrarPorCategoria(cat, btn) {
+            categoriaActiva = cat;
+            document.querySelectorAll('.filter-tags .tag').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderizar();
+        }
+
+        function filtrarEstado(estado, btn) {
+            estadoActivo = estado;
+            document.querySelectorAll('.estado-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderizar();
+        }
+
+        function actualizarPrecio(val) {
+            precioMaxActivo = parseInt(val);
+            document.getElementById('precioMax').textContent = val;
+            renderizar();
+        }
+
+        function filtrarArticulos() {
+            busquedaActiva = document.getElementById('searchInput').value;
+            renderizar();
+        }
+
+        // ── Favoritos ──
+        function agregarFavorito(idArticulo) {
+        
+             const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/Favorito/Agregar';
+
+            const tokenInput = document.createElement('input');
+            tokenInput.type  = 'hidden';
+            tokenInput.name  = '__RequestVerificationToken';
+            tokenInput.value = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+
+            const idInput = document.createElement('input');
+            idInput.type  = 'hidden';
+            idInput.name  = 'idArticulo';
+            idInput.value = idArticulo;
+
+            form.appendChild(tokenInput);
+            form.appendChild(idInput);
+            document.body.appendChild(form);
+            form.submit();
+            
+        }
+          
+
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('loading').style.display = 'none'; // ← apaga el spinner
+        renderizar();
+        });
+
+    </script>
+
+</body>
+@Html.AntiForgeryToken()
+</html>

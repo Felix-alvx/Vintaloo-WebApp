@@ -1,0 +1,140 @@
+﻿// Estilos para la landing page
+
+:root {
+    --verde: #2D4A3E;
+    --crema: #F5EDD8;
+    --naranja: #E07B39;
+    --blanco: #FFFFFF;
+    --texto: #1C1C1C;
+    --gris: #6B6B6B;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: var(--blanco);
+    color: var(--texto);
+    overflow-x: hidden;
+}
+
+.navbar-vintaloo {
+    background: var(--blanco);
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+    .navbar-vintaloo .brand {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--verde);
+        text-decoration: none;
+        letter-spacing: -0.5px;
+    }
+
+        .navbar-vintaloo .brand span {
+            color: var(--naranja);
+        }
+
+    .navbar-vintaloo .nav-links {
+        display: flex;
+        gap: 32px;
+        list-style: none;
+        align-items: center;
+    }
+
+        .navbar-vintaloo .nav-links a {
+            text-decoration: none;
+            color: var(--texto);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+            .navbar-vintaloo .nav-links a:hover {
+                color: var(--naranja);
+            }
+
+.btn-nav-primary {
+    background: var(--verde);
+    color: var(--blanco) !important;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-weight: 600 !important;
+    transition: background 0.2s !important;
+}
+
+    .btn-nav-primary:hover {
+        background: var(--naranja) !important;
+    }
+
+.footer-vintaloo {
+    background: var(--verde);
+    color: rgba(255,255,255,0.75);
+    padding: 56px 80px 32px;
+}
+
+    .footer-vintaloo .footer-brand {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.4rem;
+        color: var(--blanco);
+        font-weight: 700;
+    }
+
+        .footer-vintaloo .footer-brand span {
+            color: var(--naranja);
+        }
+
+    .footer-vintaloo .footer-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 48px;
+        margin-bottom: 40px;
+    }
+
+    .footer-vintaloo h5 {
+        color: var(--blanco);
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 16px;
+    }
+
+    .footer-vintaloo ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+        .footer-vintaloo ul a {
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: color 0.2s;
+        }
+
+            .footer-vintaloo ul a:hover {
+                color: var(--naranja);
+            }
+
+.footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.82rem;
+}
