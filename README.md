@@ -464,27 +464,25 @@ builder.Services.AddScoped<ReporteRepository>();
 
 ### Landing Page
 
-```markdown
 ![Hero Section](docs/images/hero.png)
-```
+
 
 ### Sección de Pasos
 
-```markdown
 ![Tres Pasos](docs/images/pasos.png)
-```
+
 
 ### Impacto Sostenible
 
-```markdown
+
 ![Impacto](docs/images/impacto.png)
-```
+
 
 ### Marketplace (próximamente)
 
-```markdown
+
 ![Marketplace](docs/images/marketplace.png)
-```
+
 
 ---
 
