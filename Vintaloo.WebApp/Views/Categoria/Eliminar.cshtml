@@ -1,0 +1,26 @@
+@model Domain.Data.Categoria
+
+@{
+    ViewData["Title"] = "Eliminar categoría";
+    Layout = "_PanelLayout";
+}
+
+<div class="page-head">
+    <div>
+        <h1 class="page-title">Eliminar categoría</h1>
+        <p class="subtitle">Esta acción no se puede deshacer.</p>
+    </div>
+    <a class="btn btn-secondary" asp-action="Index">Volver</a>
+</div>
+
+<div class="card">
+    <p>¿Seguro que deseas eliminar la categoría <strong>@Model.Nombre</strong>?</p>
+    @if (!string.IsNullOrWhiteSpace(Model.Descripcion))
+    {
+        <p class="muted" style="margin-top:0.5rem">@Model.Descripcion</p>
+    }
+    <form asp-action="EliminarConfirmado" asp-route-id="@Model.IdCategoria" method="post" style="margin-top:1.25rem">
+        @Html.AntiForgeryToken()
+        <button class="btn btn-danger" type="submit">Eliminar categoría</button>
+    </form>
+</div>

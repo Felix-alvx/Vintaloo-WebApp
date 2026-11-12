@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Vintaloo.WebApp.Controllers
@@ -8,16 +9,21 @@ namespace Vintaloo.WebApp.Controllers
     /// Controlador encargado de gestionar las operaciones relacionadas con los artículos.
     /// Permite listar, crear, visualizar, actualizar estado y eliminar artículos.
    
+    [Authorize]
     public class ArticuloController : Controller
     {
         private readonly IArticuloService _service;
         private readonly ICategoriaService _categoriaService;
+        private readonly IWebHostEnvironment _env;
 
-      
-        public ArticuloController(IArticuloService service, ICategoriaService categoriaService)
+        public ArticuloController(
+            IArticuloService service,
+            ICategoriaService categoriaService,
+            IWebHostEnvironment env)
         {
             _service = service;
             _categoriaService = categoriaService;
+            _env = env;
         }
 
         /// <summary>
@@ -79,22 +85,45 @@ namespace Vintaloo.WebApp.Controllers
             if (idUsuario == 0)
                 return RedirectToAction("Login", "Auth");
 
-            // Procesamiento y almacenamiento de imágenes en el servidor
-            foreach (var archivo in imagenes)
+            // Validar todas las imágenes antes de guardar archivos
+            var archivos = (imagenes ?? new List<IFormFile>())
+                .Where(a => a.Length > 0)
+                .ToList();
+
+            var extensionesPermitidas = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            const long maxBytes = 5 * 1024 * 1024;
+
+            foreach (var archivo in archivos)
             {
-                if (archivo.Length > 0)
+                var extension = Path.GetExtension(archivo.FileName).ToLowerInvariant();
+                if (!extensionesPermitidas.Contains(extension) || archivo.Length > maxBytes)
                 {
-                    var nombreArchivo = $"{Guid.NewGuid()}{Path.GetExtension(archivo.FileName)}";
-                    var ruta = Path.Combine(
-                        Directory.GetCurrentDirectory(), "wwwroot", "imagen", nombreArchivo
-                    );
-
-                    using var stream = new FileStream(ruta, FileMode.Create);
-                    archivo.CopyTo(stream);
-
-                    // Se guarda la ruta relativa en el DTO
-                    dto.Imagenes.Add($"/imagen/{nombreArchivo}");
+                    ModelState.AddModelError(
+                        "imagenes",
+                        $"La imagen '{archivo.FileName}' debe ser JPG, PNG o WEBP y no superar 5 MB.");
                 }
+            }
+
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            // Procesamiento y almacenamiento de imágenes en el servidor
+            var webRoot = _env.WebRootPath
+                ?? Path.Combine(_env.ContentRootPath, "wwwroot");
+            var carpetaImagenes = Path.Combine(webRoot, "imagen");
+            Directory.CreateDirectory(carpetaImagenes);
+
+            foreach (var archivo in archivos)
+            {
+                var extension = Path.GetExtension(archivo.FileName).ToLowerInvariant();
+                var nombreArchivo = $"{Guid.NewGuid()}{extension}";
+                var ruta = Path.Combine(carpetaImagenes, nombreArchivo);
+
+                using var stream = new FileStream(ruta, FileMode.Create);
+                archivo.CopyTo(stream);
+
+                // Se guarda la ruta relativa en el DTO
+                dto.Imagenes.Add($"/imagen/{nombreArchivo}");
             }
 
             // Se crea el artículo asociado al usuario autenticado
@@ -116,6 +145,9 @@ namespace Vintaloo.WebApp.Controllers
             if (articulo == null)
                 return NotFound();
 
+            if (!EsPropietario(articulo))
+                return Forbid();
+
             return View(articulo);
         }
 
@@ -129,6 +161,13 @@ namespace Vintaloo.WebApp.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult CambiarEstado(int id, string estado)
         {
+            var articulo = _service.ObtenerPorId(id);
+            if (articulo == null)
+                return NotFound();
+
+            if (!EsPropietario(articulo))
+                return Forbid();
+
             if (string.IsNullOrWhiteSpace(estado))
             {
                 TempData["Error"] = "El estado no puede estar vacío.";
@@ -152,6 +191,9 @@ namespace Vintaloo.WebApp.Controllers
             if (articulo == null)
                 return NotFound();
 
+            if (!EsPropietario(articulo))
+                return Forbid();
+
             return View(articulo);
         }
 
@@ -164,6 +206,13 @@ namespace Vintaloo.WebApp.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult EliminarConfirmado(int id)
         {
+            var articulo = _service.ObtenerPorId(id);
+            if (articulo == null)
+                return NotFound();
+
+            if (!EsPropietario(articulo))
+                return Forbid();
+
             _service.EliminarArticulo(id);
             TempData["Mensaje"] = "Artículo eliminado correctamente.";
             return RedirectToAction(nameof(Index));
@@ -178,7 +227,13 @@ namespace Vintaloo.WebApp.Controllers
             var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
             if (claim == null) return 0;
 
-            return int.Parse(claim.Value);
+            return int.TryParse(claim.Value, out var id) ? id : 0;
+        }
+
+        private bool EsPropietario(ArticuloDTO articulo)
+        {
+            var idUsuario = ObtenerIdUsuarioActual();
+            return idUsuario != 0 && articulo.IdUsuario == idUsuario;
         }
     }
 }

@@ -36,9 +36,9 @@ public partial class Reporte
 
     [ForeignKey("IdArticulo")]
     [InverseProperty("Reportes")]
-    public virtual Articulo IdArticuloNavigation { get; set; } = null!;
+    public virtual Articulo? IdArticuloNavigation { get; set; }
 
     [ForeignKey("IdUsuario")]
     [InverseProperty("Reportes")]
-    public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
+    public virtual Usuario? IdUsuarioNavigation { get; set; }
 }

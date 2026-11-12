@@ -1,0 +1,38 @@
+@model Domain.Data.Reporte
+
+@{
+    ViewData["Title"] = "Nuevo reporte";
+    Layout = "_PanelLayout";
+}
+
+<div class="page-head">
+    <div>
+        <h1 class="page-title">Nuevo reporte</h1>
+        <p class="subtitle">Informa sobre un artículo que incumpla las normas de Vintaloo.</p>
+    </div>
+    <a class="btn btn-secondary" asp-action="Index">Volver</a>
+</div>
+
+<div class="card">
+    <form asp-action="Crear" method="post">
+        @Html.AntiForgeryToken()
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label" asp-for="IdArticulo">ID del artículo</label>
+                <input class="form-control" asp-for="IdArticulo" type="number" min="1" />
+                <span class="field-validation-error" asp-validation-for="IdArticulo"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label" asp-for="Motivo">Motivo</label>
+                <input class="form-control" asp-for="Motivo" maxlength="255" />
+                <span class="field-validation-error" asp-validation-for="Motivo"></span>
+            </div>
+            <div class="form-group full">
+                <label class="form-label" asp-for="Descripcion">Descripción</label>
+                <textarea class="form-control" asp-for="Descripcion" rows="4"></textarea>
+                <span class="field-validation-error" asp-validation-for="Descripcion"></span>
+            </div>
+        </div>
+        <button class="btn btn-primary" type="submit">Enviar reporte</button>
+    </form>
+</div>

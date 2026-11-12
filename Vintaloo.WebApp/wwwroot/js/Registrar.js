@@ -43,7 +43,7 @@ function medirFuerza(input) {
     if (pwd.length === 0) { label.textContent = ''; return; }
 
     let score = 0;
-    if (pwd.length >= 6) score++;
+    if (pwd.length >= 8) score++;
     if (/[A-Z]/.test(pwd) && /[0-9]/.test(pwd)) score++;
     if (/[^A-Za-z0-9]/.test(pwd)) score++;
 

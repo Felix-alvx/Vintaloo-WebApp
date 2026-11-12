@@ -1,0 +1,63 @@
+@model List<Application.DTOs.ArticuloDTO>
+
+@{
+    ViewData["Title"] = "Artículos";
+    Layout = "_PanelLayout";
+    var idActual = int.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out var id) ? id : 0;
+}
+
+<div class="page-head">
+    <div>
+        <h1 class="page-title">Artículos en venta</h1>
+        <p class="subtitle">Explora los artículos disponibles en Vintaloo.</p>
+    </div>
+    <a class="btn btn-primary" asp-action="Crear">Publicar artículo</a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="card">
+        <p class="empty">No hay artículos disponibles.</p>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Estado</th>
+                        <th>Ubicación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var articulo in Model)
+                    {
+                        <tr>
+                            <td>@articulo.Titulo</td>
+                            <td>@(articulo.Categoria ?? "-")</td>
+                            <td>₡@articulo.Precio.ToString("N2")</td>
+                            <td><span class="badge">@articulo.EstadoPublicacion</span></td>
+                            <td class="muted">@(articulo.Ubicacion ?? "-")</td>
+                            <td>
+                                <div class="actions">
+                                    <a class="btn btn-secondary btn-sm" asp-action="Detalle" asp-route-id="@articulo.IdArticulo">Ver</a>
+                                    @if (articulo.IdUsuario == idActual)
+                                    {
+                                        <a class="btn btn-secondary btn-sm" asp-action="CambiarEstado" asp-route-id="@articulo.IdArticulo">Estado</a>
+                                        <a class="btn btn-danger btn-sm" asp-action="Eliminar" asp-route-id="@articulo.IdArticulo">Eliminar</a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

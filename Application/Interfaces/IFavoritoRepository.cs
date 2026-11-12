@@ -11,6 +11,7 @@ namespace Application.Interfaces
     {
         //Métodos para Favoritos 
         public List<Articulo> ObtenerFavoritosUsuario(int idUsuario);
+        public bool ExisteFavorito(int idUsuario, int idArticulo);
         public void AgregarFavorito(int idUsuario, int idArticulo);
         public void EliminarFavorito(int idUsuario, int idArticulo); 
     }

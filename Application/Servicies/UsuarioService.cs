@@ -31,7 +31,10 @@ namespace Application.Servicies
                 Correo = u.Correo,
                 Telefono = u.Telefono,
                 Ubicacion = u.Ubicacion,
-                FotoPerfil = u.FotoPerfil
+                FotoPerfil = u.FotoPerfil,
+                Estado = u.Estado,
+                FechaRegistro = u.FechaRegistro,
+                Rol = _repo.ObtenerRol(u.IdUsuario) ?? "usuario"
             }).ToList();
         }
 
@@ -56,7 +59,11 @@ namespace Application.Servicies
                 Nombre = usuario.Nombre,
                 Correo = usuario.Correo,
                 Telefono = usuario.Telefono,
-                Ubicacion = usuario.Ubicacion
+                Ubicacion = usuario.Ubicacion,
+                FotoPerfil = usuario.FotoPerfil,
+                Estado = usuario.Estado,
+                FechaRegistro = usuario.FechaRegistro,
+                Rol = _repo.ObtenerRol(usuario.IdUsuario) ?? "usuario"
             };
         }
 
@@ -101,6 +108,17 @@ namespace Application.Servicies
             if (string.IsNullOrWhiteSpace(usuario.Nombre))
                 throw new ArgumentException("El nombre del usuario es obligatorio.");
 
+            // Preservar datos que no forman parte del formulario de perfil
+            var existente = _repo.ObtenerPorId(usuario.IdUsuario);
+            if (existente != null)
+            {
+                if (string.IsNullOrWhiteSpace(usuario.FotoPerfil))
+                    usuario.FotoPerfil = existente.FotoPerfil;
+
+                if (string.IsNullOrWhiteSpace(usuario.Estado))
+                    usuario.Estado = existente.Estado;
+            }
+
             // Se delega la actualización al repositorio
             _repo.ActualizarUsuario(usuario);
         }
@@ -110,6 +128,74 @@ namespace Application.Servicies
         /// </summary>
         /// <param name="id">ID del usuario a eliminar.</param>
         /// <exception cref="ArgumentException">Se lanza si el ID es inválido.</exception>
+        public bool CrearUsuario(CreateUsuarioDTO dto)
+        {
+            if (dto == null)
+                throw new ArgumentNullException(nameof(dto), "El usuario no puede ser nulo.");
+
+            if (string.IsNullOrWhiteSpace(dto.Nombre))
+                throw new ArgumentException("El nombre del usuario es obligatorio.");
+
+            if (string.IsNullOrWhiteSpace(dto.Correo))
+                throw new ArgumentException("El correo del usuario es obligatorio.");
+
+            if (!EsPasswordSegura(dto.Password))
+                throw new ArgumentException("La contraseña no cumple con la política de seguridad.");
+
+            if (dto.IdRol != 1 && dto.IdRol != 2)
+                throw new ArgumentException("El rol seleccionado no es válido.");
+
+            if (_repo.ObtenerPorCorreo(dto.Correo) != null)
+                return false;
+
+            _repo.GuardarUsuario(new Usuario
+            {
+                Nombre = dto.Nombre,
+                Correo = dto.Correo,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                Telefono = dto.Telefono,
+                Ubicacion = dto.Ubicacion,
+                FotoPerfil = ""
+            });
+
+            var nuevo = _repo.ObtenerPorCorreo(dto.Correo);
+            if (nuevo == null) return false;
+
+            _repo.AsignarRol(nuevo.IdUsuario, dto.IdRol);
+            return true;
+        }
+
+        public void ActualizarUsuarioAdmin(UpdateUsuarioDTO dto)
+        {
+            if (dto == null)
+                throw new ArgumentNullException(nameof(dto), "El usuario no puede ser nulo.");
+
+            if (dto.IdUsuario <= 0)
+                throw new ArgumentException("El ID del usuario debe ser mayor a 0.");
+
+            if (string.IsNullOrWhiteSpace(dto.Nombre))
+                throw new ArgumentException("El nombre del usuario es obligatorio.");
+
+            if (dto.IdRol != 1 && dto.IdRol != 2)
+                throw new ArgumentException("El rol seleccionado no es válido.");
+
+            var existente = _repo.ObtenerPorId(dto.IdUsuario)
+                ?? throw new ArgumentException("El usuario no existe.");
+
+            _repo.ActualizarUsuario(new Usuario
+            {
+                IdUsuario = dto.IdUsuario,
+                Nombre = dto.Nombre,
+                Telefono = dto.Telefono,
+                Ubicacion = dto.Ubicacion,
+                Estado = dto.Estado,
+                FotoPerfil = existente.FotoPerfil
+            });
+
+            _repo.QuitarRoles(dto.IdUsuario);
+            _repo.AsignarRol(dto.IdUsuario, dto.IdRol);
+        }
+
         public void EliminarUsuario(int id)
         {
             if (id <= 0)
@@ -117,6 +203,16 @@ namespace Application.Servicies
 
             // Se delega la eliminación al repositorio
             _repo.EliminarUsuario(id);
+        }
+
+        private static bool EsPasswordSegura(string? password)
+        {
+            if (string.IsNullOrWhiteSpace(password) || password.Length < 8 || password.Length > 100)
+                return false;
+
+            return System.Text.RegularExpressions.Regex.IsMatch(
+                password,
+                @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,100}$");
         }
     }
 }

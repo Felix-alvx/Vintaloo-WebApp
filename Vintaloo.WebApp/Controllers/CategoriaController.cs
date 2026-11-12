@@ -1,10 +1,12 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
 using Domain.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Vintaloo.WebApp.Controllers
 {
+    [Authorize(Roles = "admin")]
     public class CategoriaController : Controller
     {
         private readonly ICategoriaService _service;

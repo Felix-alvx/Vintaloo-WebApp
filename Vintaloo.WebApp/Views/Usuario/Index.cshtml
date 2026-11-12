@@ -1,0 +1,61 @@
+@model List<Application.DTOs.UsuarioDTO>
+
+@{
+    ViewData["Title"] = "Usuarios";
+    Layout = "_PanelLayout";
+}
+
+<div class="page-head">
+    <div>
+        <h1 class="page-title">Usuarios</h1>
+        <p class="subtitle">Administra las cuentas, roles y estados de los usuarios.</p>
+    </div>
+    <a class="btn btn-primary" asp-action="Crear">Nuevo usuario</a>
+</div>
+
+<div class="card">
+    @if (Model.Count == 0)
+    {
+        <p class="empty">No hay usuarios registrados.</p>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var usuario in Model)
+                    {
+                        <tr>
+                            <td>@usuario.IdUsuario</td>
+                            <td>@usuario.Nombre</td>
+                            <td>@usuario.Correo</td>
+                            <td>
+                                <span class="badge @(usuario.Rol == "admin" ? "badge-admin" : "")">@usuario.Rol</span>
+                            </td>
+                            <td>
+                                <span class="badge @(usuario.Estado == "activo" ? "badge-active" : "badge-inactive")">@usuario.Estado</span>
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <a class="btn btn-secondary btn-sm" asp-action="Detalle" asp-route-id="@usuario.IdUsuario">Ver</a>
+                                    <a class="btn btn-secondary btn-sm" asp-action="Editar" asp-route-id="@usuario.IdUsuario">Editar</a>
+                                    <a class="btn btn-danger btn-sm" asp-action="Eliminar" asp-route-id="@usuario.IdUsuario">Eliminar</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

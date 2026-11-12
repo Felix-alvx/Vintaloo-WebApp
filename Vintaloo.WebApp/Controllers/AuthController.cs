@@ -8,10 +8,12 @@ namespace Vintaloo.WebApp.Controllers
     {
 
         private readonly IAuthService _authService;
+        private readonly IEmailService _emailService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IEmailService emailService)
         {
             _authService = authService;
+            _emailService = emailService;
         }
 
         // GET /Auth/Login
@@ -45,7 +47,7 @@ namespace Vintaloo.WebApp.Controllers
             Response.Cookies.Append("jwt_token", token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = false, // cambiar a true en producción con HTTPS
+                Secure = Request.IsHttps,
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTimeOffset.UtcNow.AddHours(8)
             });
@@ -81,6 +83,64 @@ namespace Vintaloo.WebApp.Controllers
             }
 
             TempData["Mensaje"] = "Cuenta creada correctamente. Inicia sesión.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        // GET /Auth/ForgotPassword
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View(new ForgotPasswordDTO());
+        }
+
+        // POST /Auth/ForgotPassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            var token = _authService.GenerarTokenRecuperacion(dto.Correo);
+            if (token != null)
+            {
+                var enlace = Url.Action(nameof(ResetPassword), "Auth", new { token }, Request.Scheme);
+                if (!string.IsNullOrWhiteSpace(enlace))
+                    await _emailService.EnviarRecuperacionAsync(dto.Correo, enlace);
+            }
+
+            TempData["Mensaje"] = "Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        // GET /Auth/ResetPassword
+        [HttpGet]
+        public IActionResult ResetPassword(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                TempData["Error"] = "El enlace de recuperación no es válido.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            return View(new ResetPasswordDTO { Token = token });
+        }
+
+        // POST /Auth/ResetPassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ResetPassword(ResetPasswordDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            if (!_authService.RestablecerPassword(dto.Token, dto.Password))
+            {
+                ModelState.AddModelError(string.Empty, "El enlace no es válido o ya venció. Solicita uno nuevo.");
+                return View(dto);
+            }
+
+            TempData["Mensaje"] = "Contraseña actualizada correctamente. Ya puedes iniciar sesión.";
             return RedirectToAction(nameof(Login));
         }
 

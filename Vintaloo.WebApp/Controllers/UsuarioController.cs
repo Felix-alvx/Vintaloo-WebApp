@@ -1,27 +1,35 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
 using Domain.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Vintaloo.WebApp.Controllers
 {
 
+    [Authorize]
     public class UsuarioController : Controller
     {
         private readonly IUsuarioService _service;
         private readonly IArticuloService _serviceArticulo;
+        private readonly IWebHostEnvironment _env;
 
     
-        public UsuarioController(IUsuarioService service, IArticuloService serviceArticulo)
+        public UsuarioController(
+            IUsuarioService service,
+            IArticuloService serviceArticulo,
+            IWebHostEnvironment env)
         {
             _service = service;
             _serviceArticulo = serviceArticulo;
+            _env = env;
         }
 
         /// <summary>
         /// Muestra la lista de todos los usuarios registrados.
         /// </summary>
         [HttpGet]
+        [Authorize(Roles = "admin")]
         public IActionResult Index()
         {
             var usuarios = _service.ObtenerUsuarios();
@@ -33,6 +41,7 @@ namespace Vintaloo.WebApp.Controllers
         /// </summary>
         /// <param name="id">ID del usuario.</param>
         [HttpGet]
+        [Authorize(Roles = "admin")]
         public IActionResult Detalle(int id)
         {
             var usuario = _service.ObtenerUsuarioPorId(id);
@@ -46,23 +55,30 @@ namespace Vintaloo.WebApp.Controllers
         /// Muestra el formulario para crear un nuevo usuario.
         /// </summary>
         [HttpGet]
+        [Authorize(Roles = "admin")]
         public IActionResult Crear()
         {
-            return View(new Usuario());
+            return View(new CreateUsuarioDTO());
         }
 
         /// <summary>
         /// Procesa la creación de un nuevo usuario.
         /// </summary>
-        /// <param name="usuario">Entidad usuario a registrar.</param>
+        /// <param name="dto">Datos del usuario a registrar.</param>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Crear(Usuario usuario)
+        [Authorize(Roles = "admin")]
+        public IActionResult Crear(CreateUsuarioDTO dto)
         {
             if (!ModelState.IsValid)
-                return View(usuario);
+                return View(dto);
 
-            _service.GuardarUsuarioService(usuario);
+            if (!_service.CrearUsuario(dto))
+            {
+                ModelState.AddModelError(nameof(dto.Correo), "El correo ya está registrado.");
+                return View(dto);
+            }
+
             TempData["Mensaje"] = "Usuario registrado correctamente.";
             return RedirectToAction(nameof(Index));
         }
@@ -72,27 +88,39 @@ namespace Vintaloo.WebApp.Controllers
         /// </summary>
         /// <param name="id">ID del usuario.</param>
         [HttpGet]
+        [Authorize(Roles = "admin")]
         public IActionResult Editar(int id)
         {
             var usuario = _service.ObtenerUsuarioPorId(id);
             if (usuario == null)
                 return NotFound();
 
-            return View(usuario);
+            var dto = new UpdateUsuarioDTO
+            {
+                IdUsuario = usuario.IdUsuario,
+                Nombre = usuario.Nombre,
+                Telefono = usuario.Telefono,
+                Ubicacion = usuario.Ubicacion,
+                Estado = usuario.Estado ?? "activo",
+                IdRol = usuario.Rol == "admin" ? 1 : 2
+            };
+
+            return View(dto);
         }
 
         /// <summary>
         /// Procesa la actualización de un usuario.
         /// </summary>
-        /// <param name="usuario">Datos actualizados del usuario.</param>
+        /// <param name="dto">Datos actualizados del usuario.</param>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Editar(Usuario usuario)
+        [Authorize(Roles = "admin")]
+        public IActionResult Editar(UpdateUsuarioDTO dto)
         {
             if (!ModelState.IsValid)
-                return View(usuario);
+                return View(dto);
 
-            _service.ActualizarUsuario(usuario);
+            _service.ActualizarUsuarioAdmin(dto);
             TempData["Mensaje"] = "Usuario actualizado correctamente.";
             return RedirectToAction(nameof(Index));
         }
@@ -102,6 +130,7 @@ namespace Vintaloo.WebApp.Controllers
         /// </summary>
         /// <param name="id">ID del usuario.</param>
         [HttpGet]
+        [Authorize(Roles = "admin")]
         public IActionResult Eliminar(int id)
         {
             var usuario = _service.ObtenerUsuarioPorId(id);
@@ -117,6 +146,7 @@ namespace Vintaloo.WebApp.Controllers
         /// <param name="id">ID del usuario.</param>
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public IActionResult EliminarConfirmado(int id)
         {
             _service.EliminarUsuario(id);
@@ -178,6 +208,8 @@ namespace Vintaloo.WebApp.Controllers
                 Ubicacion = usuario.Ubicacion
             };
 
+            ViewBag.FotoActual = usuario.FotoPerfil;
+
             return View(dto);
         }
 
@@ -191,27 +223,50 @@ namespace Vintaloo.WebApp.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult EditarPerfil(EditarPerfilDTO dto, IFormFile? fotoPerfil)
         {
+            // El ID del perfil siempre proviene del token, nunca del formulario.
+            var idUsuario = ObtenerIdUsuarioActual();
+            if (idUsuario == 0)
+                return RedirectToAction("Login", "Auth");
+
+            var usuarioActual = _service.ObtenerUsuarioPorId(idUsuario);
+            if (usuarioActual == null)
+                return NotFound();
+
+            ViewBag.FotoActual = usuarioActual.FotoPerfil;
+
             if (!ModelState.IsValid)
                 return View(dto);
 
             var usuario = new Usuario
             {
-                IdUsuario = dto.IdUsuario,
+                IdUsuario = idUsuario,
                 Nombre = dto.Nombre,
                 Telefono = dto.Telefono,
-                Ubicacion = dto.Ubicacion,
-                Estado = "activo"
+                Ubicacion = dto.Ubicacion
             };
 
             // Procesamiento de imagen de perfil
             if (fotoPerfil != null && fotoPerfil.Length > 0)
             {
-                Directory.CreateDirectory(Path.Combine(
-                    Directory.GetCurrentDirectory(), "wwwroot", "perfiles"));
+                var extension = Path.GetExtension(fotoPerfil.FileName).ToLowerInvariant();
+                var extensionesPermitidas = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                const long maxBytes = 2 * 1024 * 1024;
 
-                var nombreArchivo = $"{Guid.NewGuid()}{Path.GetExtension(fotoPerfil.FileName)}";
-                var ruta = Path.Combine(
-                    Directory.GetCurrentDirectory(), "wwwroot", "perfiles", nombreArchivo);
+                if (!extensionesPermitidas.Contains(extension) || fotoPerfil.Length > maxBytes)
+                {
+                    ModelState.AddModelError(
+                        "fotoPerfil",
+                        "La foto debe ser JPG, PNG o WEBP y no superar 2 MB.");
+                    return View(dto);
+                }
+
+                var webRoot = _env.WebRootPath
+                    ?? Path.Combine(_env.ContentRootPath, "wwwroot");
+                var carpeta = Path.Combine(webRoot, "perfiles");
+                Directory.CreateDirectory(carpeta);
+
+                var nombreArchivo = $"{Guid.NewGuid()}{extension}";
+                var ruta = Path.Combine(carpeta, nombreArchivo);
 
                 using var stream = new FileStream(ruta, FileMode.Create);
                 fotoPerfil.CopyTo(stream);
@@ -237,6 +292,19 @@ namespace Vintaloo.WebApp.Controllers
             if (idUsuario == 0)
                 return RedirectToAction("Login", "Auth");
 
+            if (string.IsNullOrWhiteSpace(estado))
+            {
+                TempData["Error"] = "El estado no puede estar vacío.";
+                return RedirectToAction(nameof(Perfil));
+            }
+
+            var articulo = _serviceArticulo.ObtenerPorId(idArticulo);
+            if (articulo == null)
+                return NotFound();
+
+            if (articulo.IdUsuario != idUsuario)
+                return Forbid();
+
             _serviceArticulo.CambiarEstado(idArticulo, estado);
             TempData["Mensaje"] = "Estado actualizado correctamente.";
             return RedirectToAction(nameof(Perfil));
@@ -251,7 +319,7 @@ namespace Vintaloo.WebApp.Controllers
             var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
             if (claim == null) return 0;
 
-            return int.Parse(claim.Value);
+            return int.TryParse(claim.Value, out var id) ? id : 0;
         }
     }
 }

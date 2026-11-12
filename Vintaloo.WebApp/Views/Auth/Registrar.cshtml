@@ -400,7 +400,7 @@
                        id="password"
                        type="password"
                        class="field-input"
-                       placeholder="Mínimo 6 caracteres"
+                       placeholder="Mínimo 8: mayúscula, minúscula, número y símbolo"
                        oninput="medirFuerza(this)"
                        autocomplete="new-password" />
                 <div class="pwd-strength">
@@ -415,13 +415,15 @@
             <!-- Confirmar contraseña -->
             <div class="field">
                 <label class="field-label" for="confirmar">Confirmar contraseña</label>
-                <input type="password"
+                <input asp-for="ConfirmPassword"
                        id="confirmar"
+                       type="password"
                        class="field-input"
                        placeholder="Repite tu contraseña"
                        oninput="validarConfirmar(this)"
                        autocomplete="new-password" />
                 <div class="field-feedback" id="confirmarFeedback"></div>
+                <span asp-validation-for="ConfirmPassword" class="field-feedback feedback-err"></span>
             </div>
 
             <button type="submit" class="btn-submit" id="btnRegistrar">
@@ -442,7 +444,7 @@
 <p class="tagline">Vintaloo — Hecho con amor para amantes de lo Vintage.</p>
 
     <!-- Llama al archivo JavaScript -->
-    <script src="~/js/register.js"></script>
+    <script src="~/js/Registrar.js"></script>
 
 </body>
 </html>

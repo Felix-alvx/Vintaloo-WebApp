@@ -22,5 +22,7 @@ namespace Application.Interfaces
         public Usuario? ObtenerPorCorreo(string correo);
         public string? ObtenerRol(int idUsuario);
         public void AsignarRol(int idUsuario, int idRol);
+        public void QuitarRoles(int idUsuario);
+        public void ActualizarPassword(int idUsuario, string passwordHash);
     }
 }

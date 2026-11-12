@@ -1,8 +1,10 @@
 ﻿using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Vintaloo.WebApp.Controllers
 {
+    [Authorize]
     public class FavoritoController : Controller
     {
         private readonly IFavoritoService _service;
@@ -56,7 +58,7 @@ namespace Vintaloo.WebApp.Controllers
         {
             var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
             if (claim == null) return 0;
-            return int.Parse(claim.Value);
+            return int.TryParse(claim.Value, out var id) ? id : 0;
         }
     }
 }

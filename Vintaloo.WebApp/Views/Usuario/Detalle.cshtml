@@ -1,0 +1,54 @@
+@model Application.DTOs.UsuarioDTO
+
+@{
+    ViewData["Title"] = "Detalle de usuario";
+    Layout = "_PanelLayout";
+}
+
+<div class="page-head">
+    <div>
+        <h1 class="page-title">@Model.Nombre</h1>
+        <p class="subtitle">Información de la cuenta.</p>
+    </div>
+    <div class="actions">
+        <a class="btn btn-secondary" asp-action="Index">Volver</a>
+        <a class="btn btn-primary" asp-action="Editar" asp-route-id="@Model.IdUsuario">Editar</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="detail-grid">
+        <div class="detail-item">
+            <div class="detail-label">ID</div>
+            <div>@Model.IdUsuario</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Rol</div>
+            <div><span class="badge @(Model.Rol == "admin" ? "badge-admin" : "")">@Model.Rol</span></div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Nombre</div>
+            <div>@Model.Nombre</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Correo</div>
+            <div>@Model.Correo</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Teléfono</div>
+            <div>@(Model.Telefono ?? "-")</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Ubicación</div>
+            <div>@(Model.Ubicacion ?? "-")</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Estado</div>
+            <div><span class="badge @(Model.Estado == "activo" ? "badge-active" : "badge-inactive")">@Model.Estado</span></div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Fecha de registro</div>
+            <div>@(Model.FechaRegistro?.ToString("dd/MM/yyyy") ?? "-")</div>
+        </div>
+    </div>
+</div>

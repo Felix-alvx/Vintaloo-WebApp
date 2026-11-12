@@ -15,5 +15,8 @@ namespace Application.DTOs
         public string? Ubicacion { get; set; }
 
         public string? FotoPerfil { get; set; }
+        public string? Estado { get; set; }
+        public string? Rol { get; set; }
+        public DateTime? FechaRegistro { get; set; }
     }
 }

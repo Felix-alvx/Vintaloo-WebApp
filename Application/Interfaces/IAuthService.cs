@@ -10,7 +10,9 @@ namespace Application.Interfaces
     public interface IAuthService
     {
         public string? Login(LoginDTO dto);
-        public bool Registrar(RegisterDTO dto); 
+        public bool Registrar(RegisterDTO dto);
+        public string? GenerarTokenRecuperacion(string correo);
+        public bool RestablecerPassword(string token, string nuevaPassword);
 
     }
 }

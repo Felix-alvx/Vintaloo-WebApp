@@ -29,11 +29,15 @@ namespace Application.Servicies
               .Select(a => new ArticuloDTO
               {
                   IdArticulo = a.IdArticulo,
+                  IdUsuario = a.IdUsuario,
+                  IdCategoria = a.IdCategoria,
+                  Categoria = a.IdCategoriaNavigation?.Nombre,
                   Titulo = a.Titulo,
                   Precio = a.Precio,
                   EstadoProducto = a.EstadoProducto,
                   Descripcion = a.Descripcion,
                   EstadoPublicacion = a.EstadoPublicacion,
+                  Ubicacion = a.Ubicacion,
 
                   // Se obtiene la primera imagen asociada al artículo (preview)
                   UrlImagen = a.ImagenesArticulos
@@ -60,6 +64,9 @@ namespace Application.Servicies
             return new ArticuloDTO
             {
                 IdArticulo = a.IdArticulo,
+                IdUsuario = a.IdUsuario,
+                IdCategoria = a.IdCategoria,
+                Categoria = a.IdCategoriaNavigation?.Nombre,
                 Titulo = a.Titulo,
                 Precio = a.Precio,
                 EstadoProducto = a.EstadoProducto,
@@ -175,6 +182,9 @@ namespace Application.Servicies
                 .Select(a => new ArticuloDTO
                 {
                     IdArticulo = a.IdArticulo,
+                    IdUsuario = a.IdUsuario,
+                    IdCategoria = a.IdCategoria,
+                    Categoria = a.IdCategoriaNavigation?.Nombre,
                     Titulo = a.Titulo,
                     Precio = a.Precio,
                     EstadoProducto = a.EstadoProducto,

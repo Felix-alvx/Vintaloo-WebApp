@@ -3,6 +3,18 @@
 @{
     ViewData["Title"] = "Vintaloo - Curated Collection";
     Layout = null;
+
+    var categorias = Model
+        .Select(a => a.Categoria)
+        .Where(c => !string.IsNullOrWhiteSpace(c))
+        .Distinct()
+        .OrderBy(c => c)
+        .ToList();
+
+    var precioTope = Model.Count > 0
+        ? (long)Math.Ceiling(Model.Max(a => a.Precio))
+        : 5000000;
+    if (precioTope < 1) precioTope = 1;
 }
 
 <!DOCTYPE html>
@@ -300,10 +312,10 @@
             box-shadow: 0 12px 32px rgba(26,23,20,.1);
         }
 
-       /* ── EMPTY STATE ──keyframes fadeUp {
+        @@keyframes fadeUp {
             from { opacity: 0; transform: translateY(16px); }
             to   { opacity: 1; transform: translateY(0); }
-                } */
+        }
 
         .card:nth-child(1) { animation-delay: .05s; }
         .card:nth-child(2) { animation-delay: .10s; }
@@ -436,6 +448,7 @@
     </style>
 </head>
 <body>
+    @Html.AntiForgeryToken()
 
     <!-- ── NAVBAR ── -->
     <nav>
@@ -467,20 +480,26 @@
         <div class="filter-bar">
             <div class="filter-tags">
                 <button class="tag active" onclick="filtrarPorCategoria('', this)">Todos</button>
-                <button class="tag" onclick="filtrarPorCategoria('Ropa', this)">Ropa ↓</button>
-                <button class="tag" onclick="filtrarPorCategoria('Vinyl', this)">Vinyl ↓</button>
-                <button class="tag" onclick="filtrarPorCategoria('Mobiliario', this)">Mobiliario ↓</button>
+                @foreach (var categoria in categorias)
+                {
+                    <button class="tag"
+                            data-categoria="@categoria"
+                            onclick="filtrarPorCategoria(this.dataset.categoria, this)">
+                        @categoria
+                    </button>
+                }
             </div>
 
             <div class="filter-right">
                 <div>
                     <div class="price-range-label">Price Range</div>
-                    <input type="range" min="0" max="5000000" value="5000000" oninput="actualizarPrecio(this.value)" />
-                    <div class="price-range-values">₡0 — ₡<span id="precioMax">3000</span></div>
+                    <input type="range" min="0" max="@precioTope" value="@precioTope" oninput="actualizarPrecio(this.value)" />
+                    <div class="price-range-values">₡0 — ₡<span id="precioMax">@precioTope.ToString("N0")</span></div>
                 </div>
                 <div class="estado-btns">
-                    <button class="estado-btn active" onclick="filtrarEstado('', this)">Nuevo</button>
-                    <button class="estado-btn" onclick="filtrarEstado('Bueno', this)">Usado</button>
+                    <button class="estado-btn active" onclick="filtrarEstado('', this)">Todos</button>
+                    <button class="estado-btn" onclick="filtrarEstado('Excelente', this)">Excelente</button>
+                    <button class="estado-btn" onclick="filtrarEstado('Bueno', this)">Bueno</button>
                     <button class="estado-btn" onclick="filtrarEstado('Regular', this)">Regular</button>
                 </div>
             </div>
@@ -498,13 +517,26 @@
     <script>
         let categoriaActiva   = '';
         let estadoActivo      = '';
-        let precioMaxActivo   = 999999;
+        let precioMaxActivo   = @precioTope;
         let busquedaActiva    = '';
 
-        // PARA VER SI FUNCIONA
         let todosLosArticulos = @Html.Raw(Json.Serialize(Model));
 
+        function escapeHtml(valor) {
+            return String(valor ?? '').replace(/[&<>"']/g, caracter => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[caracter]));
+        }
 
+        function urlImagenSegura(url) {
+            if (!url) return '';
+            const valor = String(url);
+            return /^(\/imagen\/|\/perfiles\/|https?:\/\/)/i.test(valor) ? valor : '';
+        }
 
         // ── Renderizar cards filtradas ──
         function renderizar() {
@@ -512,7 +544,7 @@
                 const matchCategoria = !categoriaActiva || (a.categoria && a.categoria.includes(categoriaActiva));
                 const matchEstado    = !estadoActivo    || a.estadoProducto === estadoActivo;
                 const matchPrecio    = a.precio <= precioMaxActivo;
-                const matchBusqueda  = !busquedaActiva  || a.titulo.toLowerCase().includes(busquedaActiva.toLowerCase());
+                const matchBusqueda  = !busquedaActiva  || (a.titulo || '').toLowerCase().includes(busquedaActiva.toLowerCase());
                 return matchCategoria && matchEstado && matchPrecio && matchBusqueda;
             });
 
@@ -528,11 +560,17 @@
             grid.style.display  = 'grid';
             empty.style.display = 'none';
 
-            grid.innerHTML = filtrados.map((a, i) => `
+            grid.innerHTML = filtrados.map((a, i) => {
+                const titulo = escapeHtml(a.titulo);
+                const descripcion = escapeHtml(a.descripcion);
+                const estado = escapeHtml(a.estadoPublicacion || 'Disponible');
+                const urlImagen = escapeHtml(urlImagenSegura(a.urlImagen));
+
+                return `
                 <div class="card" style="animation-delay:${i * 0.05}s" onclick="window.location='/Articulo/Detalle/${a.idArticulo}'">
                     <div class="card-img-wrap">
-                        ${a.urlImagen
-                            ? `<img class="card-img" src="${a.urlImagen}" alt="${a.titulo}" loading="lazy" />`
+                        ${urlImagen
+                            ? `<img class="card-img" src="${urlImagen}" alt="${titulo}" loading="lazy" />`
                             : `<div class="card-img-placeholder">
                                    <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
@@ -540,11 +578,11 @@
                                    </svg>
                                </div>`
                         }
-                        <span class="badge ${badgeClass(a.estadoPublicacion)}">${a.estadoPublicacion ?? 'Disponible'}</span>
+                        <span class="badge ${badgeClass(a.estadoPublicacion)}">${estado}</span>
                     </div>
                     <div class="card-body">
-                        <div class="card-title">${a.titulo}</div>
-                        <div class="card-desc">${a.descripcion ?? ''}</div>
+                        <div class="card-title">${titulo}</div>
+                        <div class="card-desc">${descripcion}</div>
                         <div class="card-footer">
                             <span class="card-price">$${Number(a.precio).toLocaleString('es-CR', {minimumFractionDigits: 2})}</span>
                             <button class="btn-cart" onclick="event.stopPropagation(); agregarFavorito(${a.idArticulo})" title="Agregar a favoritos">
@@ -553,7 +591,8 @@
                         </div>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function badgeClass(estado) {
@@ -581,7 +620,8 @@
 
         function actualizarPrecio(val) {
             precioMaxActivo = parseInt(val);
-            document.getElementById('precioMax').textContent = val;
+            document.getElementById('precioMax').textContent =
+                Number(val).toLocaleString('es-CR');
             renderizar();
         }
 
@@ -625,5 +665,4 @@
     </script>
 
 </body>
-@Html.AntiForgeryToken()
 </html>

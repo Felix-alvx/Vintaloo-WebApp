@@ -1,0 +1,22 @@
+@model Application.DTOs.UsuarioDTO
+
+@{
+    ViewData["Title"] = "Eliminar usuario";
+    Layout = "_PanelLayout";
+}
+
+<div class="page-head">
+    <div>
+        <h1 class="page-title">Eliminar usuario</h1>
+        <p class="subtitle">Esta acción no se puede deshacer.</p>
+    </div>
+    <a class="btn btn-secondary" asp-action="Index">Volver</a>
+</div>
+
+<div class="card">
+    <p>¿Seguro que deseas eliminar la cuenta de <strong>@Model.Nombre</strong> (@Model.Correo)?</p>
+    <form asp-action="EliminarConfirmado" asp-route-id="@Model.IdUsuario" method="post" style="margin-top:1.25rem">
+        @Html.AntiForgeryToken()
+        <button class="btn btn-danger" type="submit">Eliminar usuario</button>
+    </form>
+</div>

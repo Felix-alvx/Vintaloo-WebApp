@@ -1,9 +1,11 @@
 ﻿using Application.Interfaces;
 using Domain.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/imagenes")]
     public class ImagenArticuloController : ControllerBase

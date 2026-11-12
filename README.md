@@ -8,7 +8,7 @@
 ![C#](https://img.shields.io/badge/C%23-12.0-239120?style=for-the-badge&logo=csharp&logoColor=white)
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-MVC-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
 ![SQL Server](https://img.shields.io/badge/SQL_Server-2022-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white)
-![Entity Framework](https://img.shields.io/badge/Entity_Framework-8.0.5-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
+![Entity Framework](https://img.shields.io/badge/Entity_Framework-8.0.34-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
 
 ![Status](https://img.shields.io/badge/Status-En_Desarrollo-yellow?style=flat-square)
@@ -153,9 +153,9 @@ Vintaloo implementa **Clean Architecture** (también conocida como Arquitectura 
 |-----------|---------|-----|
 | C# | 12.0 | Lenguaje principal |
 | ASP.NET Core MVC | 8.0 | Framework web |
-| Entity Framework Core | 8.0.5 | ORM / acceso a datos |
-| EF Core Relational | 8.0.5 | Soporte para stored procedures con `FromSqlRaw` / `ExecuteSqlRaw` |
-| EF Core Design | 8.0.5 | Scaffolding del DbContext (Database-First) |
+| Entity Framework Core | 8.0.34 | ORM / acceso a datos |
+| EF Core Relational | 8.0.34 | Soporte para stored procedures con `FromSqlRaw` / `ExecuteSqlRaw` |
+| EF Core Design | 8.0.34 | Scaffolding del DbContext (Database-First) |
 
 ### Frontend
 
@@ -494,7 +494,7 @@ builder.Services.AddScoped<ReporteRepository>();
 - [x] Modelado completo de entidades de dominio
 - [x] Implementación de repositorios con stored procedures
 - [x] DTOs para transferencia de datos
-- [ ] Script SQL completo con tablas y stored procedures
+- [x] Script SQL completo con tablas y stored procedures (`docs/database/vintaloo_schema.sql`)
 - [ ] Controladores para Artículo, Usuario, Categoría
 
 ### v1.1 — Autenticación

@@ -1,0 +1,29 @@
+@model Application.DTOs.ArticuloDTO
+
+@{
+    ViewData["Title"] = "Cambiar estado";
+    Layout = "_PanelLayout";
+}
+
+<div class="page-head">
+    <div>
+        <h1 class="page-title">Cambiar estado</h1>
+        <p class="subtitle">@Model.Titulo</p>
+    </div>
+    <a class="btn btn-secondary" asp-action="Index">Volver</a>
+</div>
+
+<div class="card">
+    <form asp-action="CambiarEstado" asp-route-id="@Model.IdArticulo" method="post">
+        @Html.AntiForgeryToken()
+        <div class="form-group">
+            <label class="form-label" for="estado">Estado de publicación</label>
+            <select class="form-control" id="estado" name="estado">
+                <option value="disponible" selected="@(Model.EstadoPublicacion == "disponible")">Disponible</option>
+                <option value="reservado" selected="@(Model.EstadoPublicacion == "reservado")">Reservado</option>
+                <option value="vendido" selected="@(Model.EstadoPublicacion == "vendido")">Vendido</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Actualizar estado</button>
+    </form>
+</div>

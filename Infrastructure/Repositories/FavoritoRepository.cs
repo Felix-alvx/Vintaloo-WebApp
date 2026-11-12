@@ -27,6 +27,13 @@ namespace Vintaloo_WebApp.src.Infrastructure.Repositories
                 .ToList();
         }
 
+        public bool ExisteFavorito(int idUsuario, int idArticulo)
+        {
+            return _context.Favoritos
+                .AsNoTracking()
+                .Any(f => f.IdUsuario == idUsuario && f.IdArticulo == idArticulo);
+        }
+
         // Agregar favorito
         public void AgregarFavorito(int idUsuario, int idArticulo)
         {

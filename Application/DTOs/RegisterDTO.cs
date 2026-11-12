@@ -1,18 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Application.DTOs
 {
     public class RegisterDTO
     {
+        [Required(ErrorMessage = "El nombre es obligatorio.")]
+        [StringLength(100)]
         public string Nombre { get; set; } = null!;
-        public string Correo { get; set; } = null!;
-        public string Password { get; set; } = null!;
-        public string? Telefono { get; set; }
-        public string? Ubicacion { get; set; }
 
+        [Required(ErrorMessage = "El correo es obligatorio.")]
+        [EmailAddress(ErrorMessage = "El correo no tiene un formato válido.")]
+        [StringLength(150)]
+        public string Correo { get; set; } = null!;
+
+        [Required(ErrorMessage = "La contraseña es obligatoria.")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener entre 8 y 100 caracteres.")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,100}$",
+            ErrorMessage = "La contraseña debe incluir mayúscula, minúscula, número y símbolo.")]
+        public string Password { get; set; } = null!;
+
+        [Required(ErrorMessage = "Confirma la contraseña.")]
+        [Compare(nameof(Password), ErrorMessage = "Las contraseñas no coinciden.")]
+        public string ConfirmPassword { get; set; } = null!;
+
+        [StringLength(20)]
+        public string? Telefono { get; set; }
+
+        [StringLength(150)]
+        public string? Ubicacion { get; set; }
     }
 }

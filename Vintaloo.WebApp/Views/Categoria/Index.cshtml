@@ -1,0 +1,52 @@
+@model List<Domain.Data.Categoria>
+
+@{
+    ViewData["Title"] = "Categorías";
+    Layout = "_PanelLayout";
+}
+
+<div class="page-head">
+    <div>
+        <h1 class="page-title">Categorías</h1>
+        <p class="subtitle">Administra las categorías disponibles para publicar artículos.</p>
+    </div>
+    <a class="btn btn-primary" asp-action="Crear">Nueva categoría</a>
+</div>
+
+<div class="card">
+    @if (Model.Count == 0)
+    {
+        <p class="empty">No hay categorías registradas.</p>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var categoria in Model)
+                    {
+                        <tr>
+                            <td>@categoria.IdCategoria</td>
+                            <td>@categoria.Nombre</td>
+                            <td class="muted">@categoria.Descripcion</td>
+                            <td>
+                                <div class="actions">
+                                    <a class="btn btn-secondary btn-sm" asp-action="Editar" asp-route-id="@categoria.IdCategoria">Editar</a>
+                                    <a class="btn btn-danger btn-sm" asp-action="Eliminar" asp-route-id="@categoria.IdCategoria">Eliminar</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

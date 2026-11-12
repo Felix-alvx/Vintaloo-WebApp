@@ -14,6 +14,8 @@ namespace Application.Interfaces
         public UsuarioDTO? ObtenerUsuarioPorId(int id);
         public void GuardarUsuarioService(Usuario usuario);
         public void ActualizarUsuario(Usuario usuario);
+        public bool CrearUsuario(CreateUsuarioDTO dto);
+        public void ActualizarUsuarioAdmin(UpdateUsuarioDTO dto);
         public void EliminarUsuario(int id);
 
     }

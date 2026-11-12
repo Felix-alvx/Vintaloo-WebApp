@@ -142,9 +142,7 @@
                     <span asp-validation-for="Descripcion" class="field-feedback feedback-err"></span>
                 </div>
 
-                @* Campos ocultos requeridos por el DTO *@
-                @* IdUsuario — reemplazar con el ID del usuario logueado en sesión *@
-                <input type="hidden" asp-for="IdUsuario" value="1" />
+                @* Campo oculto requerido por el DTO *@
                 <input type="hidden" asp-for="Ubicacion" value="" />
             </div>
 
@@ -231,4 +229,3 @@
 
 </body>
 </html>
-}

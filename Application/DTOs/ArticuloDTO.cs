@@ -11,6 +11,9 @@ namespace Application.DTOs
         // DTO para articulo
         // ── Datos básicos ──
         public int IdArticulo { get; set; }
+        public int IdUsuario { get; set; }
+        public int IdCategoria { get; set; }
+        public string? Categoria { get; set; }
         public string Titulo { get; set; } = null!;
         public decimal Precio { get; set; }
         public string EstadoProducto { get; set; } = null!;

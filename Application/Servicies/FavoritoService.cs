@@ -49,6 +49,9 @@ namespace Application.Servicies
             if (idArticulo <= 0)
                 throw new ArgumentException("El ID del artículo debe ser mayor a 0.", nameof(idArticulo));
 
+            if (_repo.ExisteFavorito(idUsuario, idArticulo))
+                return;
+
             _repo.AgregarFavorito(idUsuario, idArticulo);
         }
 

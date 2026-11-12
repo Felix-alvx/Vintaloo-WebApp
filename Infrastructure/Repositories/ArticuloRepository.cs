@@ -28,7 +28,10 @@ namespace Infrastructure.Repositories
         public List<Articulo> obtenerArticulos()
         {
             return _context.Articulos
+            .AsNoTracking()
             .Include(a => a.ImagenesArticulos) // ← carga las imágenes
+            .Include(a => a.IdCategoriaNavigation)
+            .Where(a => a.EstadoPublicacion == "disponible")
             .ToList();
         }
 
@@ -39,7 +42,9 @@ namespace Infrastructure.Repositories
         {
 
             return _context.Articulos
+                    .AsNoTracking()
                     .Include(a => a.ImagenesArticulos)       // carga las imágenes
+                    .Include(a => a.IdCategoriaNavigation)
                     .Include(a => a.IdUsuarioNavigation)      // carga los datos del vendedor
                     .FirstOrDefault(a => a.IdArticulo == id);
         }
@@ -88,7 +93,9 @@ namespace Infrastructure.Repositories
         public List<Articulo> ObtenerPorUsuario(int idUsuario)
         {
             return _context.Articulos
+                .AsNoTracking()
                 .Include(a => a.ImagenesArticulos)
+                .Include(a => a.IdCategoriaNavigation)
                 .Where(a => a.IdUsuario == idUsuario)
                 .OrderByDescending(a => a.FechaPublicacion)
                 .ToList();

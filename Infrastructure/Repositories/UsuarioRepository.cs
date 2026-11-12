@@ -23,11 +23,12 @@ namespace Infrastructure.Repositories
 
         // Método para obtener todos los articulos
 
-        public List<Usuario> ObtenerTodos() {
-
+        public List<Usuario> ObtenerTodos()
+        {
             return _context.Usuarios
-                .FromSqlRaw("EXEC sp_insertar_usuario")
-                .ToList(); 
+                .AsNoTracking()
+                .OrderBy(u => u.IdUsuario)
+                .ToList();
         }
 
         // Metodo que llama al sp y obtiene los usuarios según el id especifico
@@ -35,6 +36,7 @@ namespace Infrastructure.Repositories
         {
             return _context.Usuarios
                 .FromSqlRaw("EXEC sp_obtener_usuarios_porId @id_usuario = {0}", id)
+                .AsNoTracking()
                 .AsEnumerable()
                 .FirstOrDefault();
         }
@@ -105,6 +107,20 @@ namespace Infrastructure.Repositories
             _context.Database.ExecuteSqlRaw(
                 "INSERT INTO usuario_roles (id_usuario, id_rol) VALUES ({0}, {1})",
                 idUsuario, idRol);
+        }
+
+        public void QuitarRoles(int idUsuario)
+        {
+            _context.Database.ExecuteSqlRaw(
+                "DELETE FROM usuario_roles WHERE id_usuario = {0}",
+                idUsuario);
+        }
+
+        public void ActualizarPassword(int idUsuario, string passwordHash)
+        {
+            _context.Database.ExecuteSqlRaw(
+                "UPDATE usuarios SET password_hash = {0} WHERE id_usuario = {1}",
+                passwordHash, idUsuario);
         }
     }
 }
