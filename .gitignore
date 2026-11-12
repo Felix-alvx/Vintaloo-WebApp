@@ -4,3 +4,7 @@ bin/
 obj/
 *.user
 appsettings.Development.json
+
+# Archivos subidos y respaldos locales
+Vintaloo.WebApp/wwwroot/perfiles/*.jpg
+Vintaloo.WebApp/docs/vintaloo_db_backup

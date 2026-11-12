@@ -33,16 +33,16 @@
 
 - JWT is stored in the HttpOnly cookie `jwt_token`, not an `Authorization: Bearer` header. `Program.cs` configures `JwtBearerEvents.OnMessageReceived` to read the cookie.
 - `AuthController` sets/clears the cookie and also uses session (`UsuarioNombre`). Keep `UseSession()` before `UseAuthentication()`.
-- There are no `[Authorize]` attributes. Each controller manually calls `ObtenerIdUsuarioActual()` (from `ClaimTypes.NameIdentifier`, the `id_usuario`) and redirects to `Auth/Login` when it returns 0. Follow this pattern.
-- JWT settings live under `Jwt` in `appsettings.json`. The signing key is currently committed; do not add new secrets.
+- There are `[Authorize]` attributes on protected controllers/actions. Controllers also manually call `ObtenerIdUsuarioActual()` (from `ClaimTypes.NameIdentifier`, the `id_usuario`) and redirect to `Auth/Login` when it returns 0. Follow this pattern for per-resource checks.
+- JWT settings live under `Jwt`. The signing key must come from environment variables or `appsettings.Development.json` (gitignored); never commit secrets to `appsettings.json`.
 
 ## Routing, config, files
 
 - The default MVC route is `{controller=Dashboard}/{action=Index}/{id?}`, not `Home`. `Home` is only the landing page.
-- The connection string comes from `ConnectionStrings:DefaultConnection` in `Vintaloo.WebApp/appsettings.json` (or environment variables/`appsettings.Development.json`). `VintalooDbContext.OnConfiguring` no longer hardcodes it.
+- The connection string comes from `ConnectionStrings:DefaultConnection` in environment variables or `appsettings.Development.json` (gitignored); `appsettings.json` leaves it empty. `VintalooDbContext.OnConfiguring` no longer hardcodes it.
 - `appsettings.Development.json` is gitignored.
 - Uploads use GUID filenames: article images go to `wwwroot/Imagen/` (capital `I` on disk, referenced as `/imagen/...`) and profile photos to `wwwroot/perfiles/`.
-- `Program.cs` validates the connection string and JWT configuration at startup, fails fast by rethrowing startup exceptions, and adds basic security headers. `/health` checks database connectivity.
+- `Program.cs` validates the connection string and JWT configuration at startup, fails fast by rethrowing startup exceptions, adds security headers (including CSP) and rate limiting. `/health` checks database connectivity.
 
 ## README caveat
 

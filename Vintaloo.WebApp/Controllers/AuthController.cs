@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Vintaloo.WebApp.Controllers
 {
@@ -9,11 +10,19 @@ namespace Vintaloo.WebApp.Controllers
 
         private readonly IAuthService _authService;
         private readonly IEmailService _emailService;
+        private readonly IWebHostEnvironment _environment;
+        private readonly int _expiresInHours;
 
-        public AuthController(IAuthService authService, IEmailService emailService)
+        public AuthController(
+            IAuthService authService,
+            IEmailService emailService,
+            IWebHostEnvironment environment,
+            IConfiguration configuration)
         {
             _authService = authService;
             _emailService = emailService;
+            _environment = environment;
+            _expiresInHours = configuration.GetValue<int?>("Jwt:ExpiresInHours") ?? 8;
         }
 
         // GET /Auth/Login
@@ -21,7 +30,7 @@ namespace Vintaloo.WebApp.Controllers
         public IActionResult Login()
         {
             // Si ya está logueado, redirige al Dashboard
-            if (Request.Cookies["jwt_token"] != null)
+            if (User.Identity?.IsAuthenticated == true)
                 return RedirectToAction("Index", "Dashboard");
 
             return View(new LoginDTO());
@@ -29,6 +38,7 @@ namespace Vintaloo.WebApp.Controllers
 
         // POST /Auth/Login
         [HttpPost]
+        [EnableRateLimiting("login")]
         [ValidateAntiForgeryToken]
         public IActionResult Login(LoginDTO dto)
         {
@@ -47,9 +57,9 @@ namespace Vintaloo.WebApp.Controllers
             Response.Cookies.Append("jwt_token", token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = Request.IsHttps,
+                Secure = Request.IsHttps || !_environment.IsDevelopment(),
                 SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddHours(8)
+                Expires = DateTimeOffset.UtcNow.AddHours(_expiresInHours)
             });
 
             // Guardar nombre en sesión para mostrarlo en la UI
@@ -68,6 +78,7 @@ namespace Vintaloo.WebApp.Controllers
 
         // POST /Auth/Registrar
         [HttpPost]
+        [EnableRateLimiting("login")]
         [ValidateAntiForgeryToken]
         public IActionResult Registrar(RegisterDTO dto)
         {
@@ -95,6 +106,7 @@ namespace Vintaloo.WebApp.Controllers
 
         // POST /Auth/ForgotPassword
         [HttpPost]
+        [EnableRateLimiting("recuperacion")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordDTO dto)
         {
@@ -128,6 +140,7 @@ namespace Vintaloo.WebApp.Controllers
 
         // POST /Auth/ResetPassword
         [HttpPost]
+        [EnableRateLimiting("recuperacion")]
         [ValidateAntiForgeryToken]
         public IActionResult ResetPassword(ResetPasswordDTO dto)
         {

@@ -188,7 +188,9 @@ namespace Application.Servicies
         {
             var key = ObtenerClaveFirma();
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var horas = int.Parse(_config["Jwt:ExpiresInHours"] ?? "8");
+            var horas = int.TryParse(_config["Jwt:ExpiresInHours"], out var valor) && valor > 0
+                ? valor
+                : 8;
 
             var claims = new[]
             {
