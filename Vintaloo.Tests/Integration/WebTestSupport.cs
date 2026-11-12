@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Vintaloo.Tests.Integration
 {
-    public sealed class TestWebApplicationFactory : WebApplicationFactory<Program>
+    public class TestWebApplicationFactory : WebApplicationFactory<Program>
     {
         private readonly string _connectionString;
         private readonly string? _webRoot;
@@ -29,9 +29,21 @@ namespace Vintaloo.Tests.Integration
             {
                 config.AddInMemoryCollection(new Dictionary<string, string?>
                 {
-                    ["ConnectionStrings:DefaultConnection"] = _connectionString
+                    ["ConnectionStrings:DefaultConnection"] = _connectionString,
+                    ["Jwt:Key"] = "VintalooTestsSecretKey_1234567890_ABCDEF",
+                    ["Jwt:Issuer"] = "VintalooTests",
+                    ["Jwt:Audience"] = "VintalooTestsUsers",
+                    ["Jwt:ExpiresInHours"] = "1"
                 });
             });
+        }
+    }
+
+    public sealed class IntegrationTestFactory : TestWebApplicationFactory
+    {
+        public IntegrationTestFactory()
+            : base("Server=(localdb)\\mssqllocaldb;Database=vintaloo_tests;Trusted_Connection=True;TrustServerCertificate=True")
+        {
         }
     }
 

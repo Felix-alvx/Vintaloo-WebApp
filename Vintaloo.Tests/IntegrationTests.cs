@@ -1,14 +1,15 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
+using Vintaloo.Tests.Integration;
 using Xunit;
 
 namespace Vintaloo.Tests
 {
-    public class IntegrationTests : IClassFixture<WebApplicationFactory<Program>>
+    public class IntegrationTests : IClassFixture<IntegrationTestFactory>
     {
         private readonly HttpClient _client;
 
-        public IntegrationTests(WebApplicationFactory<Program> factory)
+        public IntegrationTests(IntegrationTestFactory factory)
         {
             _client = factory.CreateClient(new WebApplicationFactoryClientOptions
             {
@@ -24,6 +25,28 @@ namespace Vintaloo.Tests
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var html = await response.Content.ReadAsStringAsync();
             Assert.Contains("Iniciar sesión", html);
+        }
+
+        [Fact]
+        public async Task Login_Get_ConCookieInvalida_MuestraFormulario()
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, "/Auth/Login");
+            request.Headers.Add("Cookie", "jwt_token=token-invalido");
+
+            var response = await _client.SendAsync(request);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Respuesta_IncluyeContentSecurityPolicy()
+        {
+            var response = await _client.GetAsync("/Auth/Login");
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var csp = response.Headers.GetValues("Content-Security-Policy").Single();
+            Assert.Contains("default-src 'self'", csp);
+            Assert.Contains("frame-ancestors 'none'", csp);
         }
 
         [Fact]

@@ -5,10 +5,10 @@ Detectar regresiones en autenticación, autorización, validaciones, administrac
 
 ## Estado actual
 - Proyecto de pruebas: `Vintaloo.Tests/Vintaloo.Tests.csproj`, ubicado en la raíz del repositorio y agregado a `Vintaloo.WebApp/Vintaloo.WebApp.sln`.
-- Resultado actual: **76 pruebas correctas, 0 errores**.
+- Resultado actual: **80 pruebas correctas, 0 errores** contra una copia restaurada de la base real.
 - Pruebas unitarias: usan mocks y no tocan SQL Server.
 - Pruebas de integración HTTP: usan `WebApplicationFactory<Program>` y no requieren base de datos.
-- Pruebas de integración SQL: usan una base aislada creada a partir de `vintaloo_db` y se eliminan al terminar.
+- Pruebas de integración SQL: usan una base aislada creada a partir de `vintaloo_db` o de una copia restaurada y se eliminan al terminar.
 
 ## Herramientas
 - xUnit para casos y teorías.
@@ -33,6 +33,7 @@ Detectar regresiones en autenticación, autorización, validaciones, administrac
 - `Integration/LoginWebSqlTests.cs`: login HTTP con cookie JWT y validación de acceso admin contra SQL Server.
 - `Integration/ArchivoWebSqlTests.cs`: subida de imágenes de artículos y fotos de perfil, validación de extensión y tamaño, nombres GUID y persistencia en SQL Server.
 - `Integration/AdminWebSqlTests.cs`: flujo E2E de alta, edición y eliminación de usuarios y categorías, y creación/consulta de reportes.
+- `Integration/ProduccionWebSqlTests.cs`: health check y cabeceras de seguridad con SQL Server real.
 - `Integration/WebTestSupport.cs`: factory HTTP compartida, login con antiforgery y helper de autenticación.
 
 ## Base de datos de pruebas
@@ -41,6 +42,7 @@ Detectar regresiones en autenticación, autorización, validaciones, administrac
 - Se crea con `DBCC CLONEDATABASE`, se pasa a `READ_WRITE` y se siembran los roles `admin` y `usuario`.
 - Cada prueba limpia las tablas de datos y conserva los roles.
 - La base se elimina al finalizar la colección de pruebas.
+- Si la base de origen se restaura desde un backup, desactivar `AUTO_CLOSE` (`ALTER DATABASE [...] SET AUTO_CLOSE OFF`) antes de ejecutar las pruebas; `DBCC CLONEDATABASE` falla si la base se cierra automáticamente.
 - Las pruebas de archivos usan un `WebRoot` temporal y lo eliminan al terminar; no escriben en `wwwroot`.
 - Variables opcionales:
   - `VINTALOO_TEST_SQL_CONNECTION`: cadena de conexión al servidor.
@@ -66,6 +68,13 @@ Solo pruebas SQL:
 
 ```powershell
 dotnet test ..\Vintaloo.Tests\Vintaloo.Tests.csproj --filter "FullyQualifiedName~Vintaloo.Tests.Integration"
+```
+
+Para usar una copia restaurada como origen:
+
+```powershell
+$env:VINTALOO_TEST_SOURCE_DB = "vintaloo_restore_db"
+dotnet test ..\Vintaloo.Tests\Vintaloo.Tests.csproj
 ```
 
 Cobertura:

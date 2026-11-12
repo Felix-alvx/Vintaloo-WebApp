@@ -138,9 +138,12 @@ END");
             var directorio = new DirectoryInfo(AppContext.BaseDirectory);
             while (directorio != null)
             {
-                var appsettings = Path.Combine(directorio.FullName, "Vintaloo.WebApp", "appsettings.json");
-                if (File.Exists(appsettings))
+                foreach (var archivo in new[] { "appsettings.Development.json", "appsettings.json" })
                 {
+                    var appsettings = Path.Combine(directorio.FullName, "Vintaloo.WebApp", archivo);
+                    if (!File.Exists(appsettings))
+                        continue;
+
                     using var documento = JsonDocument.Parse(File.ReadAllText(appsettings));
                     if (documento.RootElement.TryGetProperty("ConnectionStrings", out var conexiones) &&
                         conexiones.TryGetProperty("DefaultConnection", out var porDefecto) &&
